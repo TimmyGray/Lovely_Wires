@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.45-alpha">
+  <PropertyGroup>
+    <StartupCommand>npm start</StartupCommand>
+    <JavaScriptTestFramework>Jasmine</JavaScriptTestFramework>
+    <!-- Command to run on project build -->
+    <BuildCommand>
+    </BuildCommand>
+    <!-- Command to create an optimized build of the project that's ready for publishing -->
+    <ProductionBuildCommand>npm run build</ProductionBuildCommand>
+    <!-- Folder where production build objects will be placed -->
+    <BuildOutputFolder>$(MSBuildProjectDirectory)\dist\lovely_wires</BuildOutputFolder>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="src\app\components\html\" />
+    <Folder Include="src\app\modules\" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptConfiguration Remove="src\app\serverapp\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="src\app\serverapp\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="src\app\serverapp\server\routing\wire-router.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="src\app\serverapp\server\nodeserver.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="src\app\serverapp\server\controllers\wire-controller.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptConfiguration Remove="src\app\serverapp\tsconfig.json" />
+  </ItemGroup>
+</Project>

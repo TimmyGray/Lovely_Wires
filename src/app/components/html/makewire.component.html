@@ -1,0 +1,128 @@
+<div class="container-fluid bg-light">
+  <h1 class="text-center mb-5">Make Wire</h1>
+  <div class="container mb-10">
+    <div class="row">
+      <div class="col-12">
+        <div class="container mb-5">
+
+          <input type="text" class="form-control form-control-lg" id="WireName" [(ngModel)]="newWire.name" name="wirename" #wirename="ngModel" required>
+          <div [hidden]="wirename.valid||wirename.untouched" class="alert alert-danger">
+            Не указано имя
+          </div>
+
+        </div>
+        <div class="row justify-content-between mb-5">
+
+          <div class="col-5 col-md-3">
+            <label class="text-primary" for="WireConn1">First connector type</label>
+            <select id="WireConn1" class="form-select form-select-md" aria-label="open" [(ngModel)]="newWire.firstconn" name="firstconn" #firstconn="ngModel" required>
+              <option *ngFor="let connector of connectors">{{connector}}</option>
+
+            </select>
+            <div [hidden]="firstconn.valid||firstconn.untouched" class="alert alert-danger">
+              Не указан разъем
+            </div>
+          </div>
+
+          <div class="col-2 col-md-3 text-center">
+            <label class="text-primary" for="WireLength">Length м</label>
+            <input type="number" id="WireLength" class="form-control" (ngModelChange)="MinusCancelNew(length)" [ngModel]="newWire.length" name="length" #length="ngModel" required />
+            <div [hidden]="length.valid||length.untouched" class="alert alert-danger">
+              Не указана длина
+            </div>
+          </div>
+          
+          <div class=" col-5 col-md-3">
+            <label class="text-primary" for="WireConn2">Second connector type</label>
+            <select id="WireConn2" class="form-select form-select-md" aria-label="open" [(ngModel)]="newWire.secondconn" name="secondconn" #secondconn="ngModel" required>
+              <option *ngFor="let connector of connectors">{{connector}}</option>
+            </select>
+            <div [hidden]="secondconn.valid||secondconn.untouched" class="alert alert-danger">
+              Не указан разьем
+            </div>
+          </div>
+        </div>
+
+        <div class="container mb-10 text-center">
+          <button type="submit" class="btn btn-primary" (click)="PostWire()" [disabled]="wirename.invalid||firstconn.invalid||length.invalid||secondconn.invalid">Make Wire</button>
+        </div>
+
+      </div>
+
+      <h2>{{status}}</h2>
+
+
+      <div class="col-12">
+        <table class="table table-striped table-primary table-hover text-center">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>First connector</th>
+              <th>Length</th>
+              <th>Second connector</th>
+              <th>Edit</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr *ngFor="let wire of wires">
+
+              <ng-template [ngTemplateOutlet]="LoadTemplate(wire)"
+                           [ngTemplateOutletContext]="{$implicit:wire}">
+
+              </ng-template>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<ng-template #readonlytemp let-wire>
+
+  
+  <td>{{wire.name}}</td>
+  <td>{{wire.firstconn}}</td>
+  <td>{{wire.length}}</td>
+  <td>{{wire.secondconn}}</td>
+  <td>
+    <input type="button" class="btn btn-warning" value="Edit" (click)="EditWire(wire)" />
+  </td>
+  <td>
+    <input type="button" class="btn btn-danger" value="Delete" (click) ="DeleteWire(wire)" />
+  </td>
+
+</ng-template>
+
+
+<ng-template #editabletemp>
+  
+  
+  <td>
+    <input type="text" [(ngModel)] = "editWire.name" class="form-control" name="editname" #editname="ngModel" required />
+  </td>
+  <td>
+    <select class="form-select form-select-md" aria-label="open" [(ngModel)]="editWire.firstconn" name="editfirstconn" #editfirstconn="ngModel" required>
+      <option *ngFor="let connector of connectors">{{connector}}</option>
+    </select>
+  </td>
+  <td>
+    <input type="number" (ngModelChange) = "MinusCancelEdit(editlength)" [ngModel] = "editWire.length" class="form-control" name="editlength" #editlength="ngModel" required />
+  </td>
+  <td>
+    <select class="form-select form-select-md" aria-label="open" [(ngModel)]="editWire.secondconn" name="editsecondconn" #editsecondconn="ngModel" required>
+      <option *ngFor="let connector of connectors">{{connector}}</option>
+    </select>
+  </td>
+  <td>
+    <input type="button" class="btn btn-primary" value="Save" (click) = "PutWire()" [disabled]="editfirstconn.invalid||editname.invalid||editlength.invalid||editsecondconn.invalid" />
+  </td>
+  <td>
+    <input type="button" class="btn btn-warning" value="Cancel" (click) = "CancelEdit()" />
+  </td>
+
+</ng-template>

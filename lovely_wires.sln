@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32825.248
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "lovely_wires", "lovely_wires.esproj", "{F673C9B9-9E65-484C-AA60-4A6C75A857BB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F673C9B9-9E65-484C-AA60-4A6C75A857BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F673C9B9-9E65-484C-AA60-4A6C75A857BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F673C9B9-9E65-484C-AA60-4A6C75A857BB}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{F673C9B9-9E65-484C-AA60-4A6C75A857BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F673C9B9-9E65-484C-AA60-4A6C75A857BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F673C9B9-9E65-484C-AA60-4A6C75A857BB}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {454D7FA0-021F-4D33-9DEB-9179BD49A43D}
+	EndGlobalSection
+EndGlobal
