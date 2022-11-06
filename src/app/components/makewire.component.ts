@@ -1,7 +1,7 @@
 import { Component, TemplateRef, OnInit, ViewChild } from '@angular/core';
-import { Wire } from './wire';
-import { WireService } from '../wire.service';
-import { Connectors } from './connector';
+import { Wire } from './models/wire';
+import { WireService } from '../services/wire.service';
+import { Connectors } from './models/connector';
 import { NgModel } from '@angular/forms';
 
 @Component({

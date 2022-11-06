@@ -1,11 +1,11 @@
 <div class="container-fluid bg-light">
-  <h1 class="text-center mb-5">Make Wire</h1>
+  <h1 class="text-center mb-5">Wires Manager</h1>
   <div class="container mb-10">
     <div class="row">
       <div class="col-12">
         <div class="container mb-5">
-
-          <input type="text" class="form-control form-control-lg" id="WireName" [(ngModel)]="newWire.name" name="wirename" #wirename="ngModel" required>
+          <label for="WireName" class="text-primary">Wire name</label>
+          <input type="text" class="form-control form-control-lg" id="WireName" [(ngModel)]="newWire.name" #wirename="ngModel" required>
           <div [hidden]="wirename.valid||wirename.untouched" class="alert alert-danger">
             Не указано имя
           </div>
@@ -15,7 +15,7 @@
 
           <div class="col-5 col-md-3">
             <label class="text-primary" for="WireConn1">First connector type</label>
-            <select id="WireConn1" class="form-select form-select-md" aria-label="open" [(ngModel)]="newWire.firstconn" name="firstconn" #firstconn="ngModel" required>
+            <select id="WireConn1" class="form-select form-select-md" aria-label="open" [(ngModel)]="newWire.firstconn" #firstconn="ngModel" required>
               <option *ngFor="let connector of connectors">{{connector}}</option>
 
             </select>
@@ -26,7 +26,7 @@
 
           <div class="col-2 col-md-3 text-center">
             <label class="text-primary" for="WireLength">Length м</label>
-            <input type="number" id="WireLength" class="form-control" (ngModelChange)="MinusCancelNew(length)" [ngModel]="newWire.length" name="length" #length="ngModel" required />
+            <input type="number" id="WireLength" class="form-control" (ngModelChange)="MinusCancelNew(length)" [ngModel]="newWire.length" #length="ngModel" required />
             <div [hidden]="length.valid||length.untouched" class="alert alert-danger">
               Не указана длина
             </div>
@@ -34,7 +34,7 @@
           
           <div class=" col-5 col-md-3">
             <label class="text-primary" for="WireConn2">Second connector type</label>
-            <select id="WireConn2" class="form-select form-select-md" aria-label="open" [(ngModel)]="newWire.secondconn" name="secondconn" #secondconn="ngModel" required>
+            <select id="WireConn2" class="form-select form-select-md" aria-label="open" [(ngModel)]="newWire.secondconn" #secondconn="ngModel" required>
               <option *ngFor="let connector of connectors">{{connector}}</option>
             </select>
             <div [hidden]="secondconn.valid||secondconn.untouched" class="alert alert-danger">

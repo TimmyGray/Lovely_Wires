@@ -5,7 +5,8 @@ import { AppComponent } from '../components/app.component';
 import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from '../components/home.component';
 import { MakeWireComponent } from '../components/makewire.component';
-import { HttpClientModule } from '@angular/common/http'
+import { HttpClientModule } from '@angular/common/http';
+import { MakeCoilComponent } from '../components/makecoil.component';
 
 const appRoutes: Routes = [
 
@@ -14,8 +15,11 @@ const appRoutes: Routes = [
   },
 
   {
-
     path: 'wires', component: MakeWireComponent
+  },
+
+  {
+    path: 'coils', component: MakeCoilComponent
   }
   
   
@@ -24,7 +28,7 @@ const appRoutes: Routes = [
 
 @NgModule({
   imports: [BrowserModule, FormsModule, RouterModule.forRoot(appRoutes), HttpClientModule],
-  declarations: [AppComponent, HomeComponent, MakeWireComponent],
+  declarations: [AppComponent, HomeComponent, MakeWireComponent, MakeCoilComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

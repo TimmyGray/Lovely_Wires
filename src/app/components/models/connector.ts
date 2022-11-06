@@ -1,4 +1,4 @@
-  enum Connector {
+enum Connector {
   trs_m,
   ts_m,
   xlr_m,
@@ -7,11 +7,11 @@
   ts_f,
   xlr_f,
   rca_f
-  
+
 
 }
 
-export let Connectors: Array<string> = new Array <string>();
+export let Connectors: Array<string> = new Array<string>();
 
 
 for (let i = 0; ; i++) {

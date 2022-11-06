@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Wire } from './components/wire';
+import { Wire } from '../components/models/wire';
 
 @Injectable()
 export class WireService {
 
-  private url = "http://localhost:3000/api/wires";
+  private url = "http://localhost:3200/api/wires";
 
 
   constructor(private http: HttpClient) { }
@@ -19,7 +19,7 @@ export class WireService {
 
     const httpheaders = new HttpHeaders().set("Content-Type", "application/json");
 
-    return this.http.post<Wire>(this.url+'/post', JSON.stringify(wire), { headers: httpheaders });
+    return this.http.post<Wire>(this.url+'/postwire', JSON.stringify(wire), { headers: httpheaders });
 
   }
 
@@ -27,13 +27,13 @@ export class WireService {
 
     const httpheaders = new HttpHeaders().set("Content-Type", "application/json");
 
-    return this.http.put<Wire>(this.url + '/edit', JSON.stringify(wire), { headers: httpheaders });
+    return this.http.put<Wire>(this.url + '/editwire', JSON.stringify(wire), { headers: httpheaders });
 
   }
 
   deleteWire(id: string) {
 
-    return this.http.delete<Wire>(this.url + '/delete/' + id);
+    return this.http.delete<Wire>(this.url + '/deletewire/' + id);
 
   }
 
