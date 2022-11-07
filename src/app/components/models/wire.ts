@@ -1,7 +1,7 @@
+import { Coil } from "./coil";
+
 export class Wire {
 
-  constructor(public _id: string, public name: string, public firstconn: string, public secondconn: string, public length: number) {
-
-  }
+  constructor(public _id: string, public wirename: string, public wirefirstconn: string, public wiresecondconn: string, public wirecoil: Coil, public wirelength: number) {}
 
 }

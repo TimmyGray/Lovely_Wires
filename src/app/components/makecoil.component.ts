@@ -31,6 +31,8 @@ export class MakeCoilComponent implements OnInit {
 
   coils: Array<Coil>;
 
+  
+
   status: string = "";
 
   constructor(private service: CoilService) {
@@ -57,10 +59,10 @@ export class MakeCoilComponent implements OnInit {
 
     if (this.NewCoil != null) {
 
-      this.service.postCoil(this.NewCoil as Coil).subscribe((data: Coil) => {
+      this.service.postCoil(this.NewCoil as Coil).subscribe((_) => {
 
-        this.coils.push(data);
-        this.status = `Катушка ${data.coilname} успешно создана`;
+        this.coils.push(this.NewCoil);
+        this.status = `Катушка ${this.NewCoil.coilname} успешно создана`;
         this.NewCoil = new Coil("", "", "", "", 0);
 
       }, (err) => {
@@ -77,7 +79,7 @@ export class MakeCoilComponent implements OnInit {
 
     if (this.EditCoil != null) {
 
-      this.service.editCoil(this.EditCoil as Coil).subscribe((data: Coil) => {
+      this.service.editCoil(this.EditCoil as Coil).subscribe((_) => {
 
         this.GetAllCoils();
         this.status = `Катушка ${this.EditCoil.coilname} успешна обновлена`;
@@ -100,7 +102,7 @@ export class MakeCoilComponent implements OnInit {
 
     if (deletecoil != null) {
 
-      this.service.deleteCoil(deletecoil._id).subscribe((data: Coil) => {
+      this.service.deleteCoil(deletecoil._id).subscribe((_) => {
 
         this.GetAllCoils();
         this.status = `Катушка ${deletecoil.coilname} успешна удалена`;

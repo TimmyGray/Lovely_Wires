@@ -1,14 +1,19 @@
-import { Component, TemplateRef, OnInit, ViewChild } from '@angular/core';
+import { Component, TemplateRef, OnInit, ViewChild,ElementRef } from '@angular/core';
 import { Wire } from './models/wire';
 import { WireService } from '../services/wire.service';
 import { Connectors } from './models/connector';
 import { NgModel } from '@angular/forms';
+import { CoilService } from '../services/coil.service';
+import { Coil } from './models/coil';
 
 @Component({
   selector: 'make-wire',
   templateUrl: './html/makewire.component.html',
-  providers: [WireService]
+  styleUrls:['../styles/my-styles.css'],
+  providers: [WireService,CoilService]
 })
+
+  
 
 export class MakeWireComponent implements OnInit {
 
@@ -18,29 +23,59 @@ export class MakeWireComponent implements OnInit {
   @ViewChild('editabletemp', { static: false })
   editabletemp: TemplateRef<any> | undefined;
 
+  @ViewChild('progresstest', { static: false })
+  progressbar: ElementRef | undefined;
+
+  
+
+  
+
   ngOnInit() {
     this.LoadWires();
+    this.LoadCoils();
   }
 
   wires: Array<Wire>;
 
+  coils: Array<Coil>;
+
+  currentcoil: Coil;
 
   connectors: Array<string>;
-
   
   editWire: Wire | null=null;
 
-  newWire: Wire | null=null;
+  newWire: Wire | null = null;
+
+  coilname: string = "";
+
+  availablelength: number = 0;
+
+  coillength: number = 0;
 
   status: string;
 
-  constructor(private serv: WireService) {
+  percent: number;
+
+  constructor(private serv: WireService, private service: CoilService) {
 
     this.wires = new Array<Wire>();
 
-    this.newWire = new Wire("", "", "", "", 0);
+    this.coils = new Array<Coil>();
 
+    this.newWire = new Wire("", "", "", "", null, 0);
+
+    
     this.connectors = Connectors;
+
+  }
+
+  ProgresChange() {
+
+    this.percent = this.availablelength/this.newWire.wirecoil.coillength * 100  ;
+
+    this.progressbar.nativeElement.style.width = `${this.percent}%`;
+
 
   }
 
@@ -57,15 +92,25 @@ export class MakeWireComponent implements OnInit {
 
   private LoadWires() {
     this.serv.getWires().subscribe((data: Array<Wire>) => {
+
       this.wires = data;
+
     })
   }
 
-  
+  private LoadCoils() {
+
+    this.service.getCoils().subscribe((data: Array<Coil>) => {
+
+      this.coils = data;
+
+    })
+
+  }
 
   EditWire(wire: Wire) {
 
-    this.editWire = new Wire(wire._id, wire.name, wire.firstconn, wire.secondconn, wire.length);
+    this.editWire = new Wire(wire._id, wire.wirename, wire.wirefirstconn, wire.wiresecondconn,null, wire.wirelength);
 
   }
 
@@ -88,7 +133,7 @@ export class MakeWireComponent implements OnInit {
 
     this.serv.postWire(this.newWire as Wire).subscribe(_ => {
       this.LoadWires();
-      this.status = `Кабель ${this.newWire.name} успешно создан, его характеристики: ${this.newWire.firstconn}-${this.newWire.secondconn},${this.newWire.length}м`;
+      this.status = `Кабель ${this.newWire.wirename} успешно создан, его характеристики: ${this.newWire.wirefirstconn}-${this.newWire.wiresecondconn},${this.newWire.wirelength}м`;
 
     })
     
@@ -120,7 +165,9 @@ export class MakeWireComponent implements OnInit {
       length.reset();
     }
     else {
-      this.newWire.length = length.value;
+      this.newWire.wirelength = length.value;
+      this.availablelength = this.newWire.wirecoil.coillength - length.value;
+      this.ProgresChange();
     }
 
   }
@@ -131,8 +178,16 @@ export class MakeWireComponent implements OnInit {
       length.reset();
     }
     else {
-      this.editWire.length = length.value;
+      this.editWire.wirelength = length.value;
     }
+
+  }
+
+  SetCoil() {
+
+    
+    this.newWire.wirecoil = this.coils.find(c => c.coilname == this.coilname);
+
 
   }
 

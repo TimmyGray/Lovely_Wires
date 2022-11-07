@@ -1,56 +1,96 @@
 <div class="container-fluid bg-light">
   <h1 class="text-center mb-5">Wires Manager</h1>
+
   <div class="container mb-10">
-    <div class="row">
-      <div class="col-12">
-        <div class="container mb-5">
-          <label for="WireName" class="text-primary">Wire name</label>
-          <input type="text" class="form-control form-control-lg" id="WireName" [(ngModel)]="newWire.name" #wirename="ngModel" required>
-          <div [hidden]="wirename.valid||wirename.untouched" class="alert alert-danger">
-            Не указано имя
-          </div>
 
-        </div>
-        <div class="row justify-content-between mb-5">
+    <div class="row justify-content-between">
 
-          <div class="col-5 col-md-3">
-            <label class="text-primary" for="WireConn1">First connector type</label>
-            <select id="WireConn1" class="form-select form-select-md" aria-label="open" [(ngModel)]="newWire.firstconn" #firstconn="ngModel" required>
-              <option *ngFor="let connector of connectors">{{connector}}</option>
+      <div class="col-4 col-lg-4">
 
-            </select>
-            <div [hidden]="firstconn.valid||firstconn.untouched" class="alert alert-danger">
-              Не указан разъем
-            </div>
-          </div>
-
-          <div class="col-2 col-md-3 text-center">
-            <label class="text-primary" for="WireLength">Length м</label>
-            <input type="number" id="WireLength" class="form-control" (ngModelChange)="MinusCancelNew(length)" [ngModel]="newWire.length" #length="ngModel" required />
-            <div [hidden]="length.valid||length.untouched" class="alert alert-danger">
-              Не указана длина
-            </div>
-          </div>
-          
-          <div class=" col-5 col-md-3">
-            <label class="text-primary" for="WireConn2">Second connector type</label>
-            <select id="WireConn2" class="form-select form-select-md" aria-label="open" [(ngModel)]="newWire.secondconn" #secondconn="ngModel" required>
-              <option *ngFor="let connector of connectors">{{connector}}</option>
-            </select>
-            <div [hidden]="secondconn.valid||secondconn.untouched" class="alert alert-danger">
-              Не указан разьем
-            </div>
-          </div>
-        </div>
-
-        <div class="container mb-10 text-center">
-          <button type="submit" class="btn btn-primary" (click)="PostWire()" [disabled]="wirename.invalid||firstconn.invalid||length.invalid||secondconn.invalid">Make Wire</button>
+        <label for="WireName" class="text-primary">Wire name</label>
+        <input type="text" class="form-control form-control" id="WireName" [(ngModel)]="newWire.wirename" #wirename="ngModel" required>
+        <div [hidden]="wirename.valid||wirename.untouched" class="alert alert-danger">
+          Не указано имя
         </div>
 
       </div>
 
-      <h2>{{status}}</h2>
+      <div class="col-4 col-lg-4 text-center">
 
+        <label for="LenghtProgress" class="text-primary mb-2">Оставшаяся длина</label>
+        <div class="progress">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" attr.aria-valuenow="{{availablelength}}" aria-valuemin="0" attr.aria-valuemax="{{coillength}}" #progresstest >{{availablelength}}</div>
+          
+        </div>
+
+      </div>
+      <!--class="progress-bar progress-bar-striped progress-bar-animated"-->
+      <div class="col-4 col-lg-4">
+
+        <label for="CoilWire" class="text-primary">Wire's coil</label>
+        <select id="CoilWire" class="form-select form-select-md" aria-label="open" [(ngModel)]="coilname" (ngModelChange)="SetCoil()" #wirecoil="ngModel" required>
+          <option *ngFor="let coil of coils">{{coil.coilname}}</option>
+        </select>
+        <div [hidden]="wirecoil.untouched||wirecoil.valid" class="alert alert-danger">
+          Необходимо указать катушку из которой будет сделан провод
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="row justify-content-between mb-5">
+
+      <div class="col-5 col-md-3">
+
+        <label class="text-primary" for="WireConn1">First connector type</label>
+        <select id="WireConn1" class="form-select form-select-md" aria-label="open" [(ngModel)]="newWire.wirefirstconn" #firstconn="ngModel" required>
+          <option *ngFor="let connector of connectors">{{connector}}</option>
+        </select>
+        <div [hidden]="firstconn.valid||firstconn.untouched" class="alert alert-danger">
+          Не указан разъем
+        </div>
+
+      </div>
+
+      <div class="col-2 col-md-3 text-center">
+
+        <label class="text-primary" for="WireLength">Length м</label>
+        <input type="number" id="WireLength" class="form-control" (ngModelChange)="MinusCancelNew(length)" [ngModel]="newWire.wirelength" #length="ngModel" required />
+        <div [hidden]="length.valid||length.untouched" class="alert alert-danger">
+          Не указана длина
+        </div>
+
+      </div>
+
+      <div class="col-5 col-md-3">
+
+        <label class="text-primary" for="WireConn2">Second connector type</label>
+        <select id="WireConn2" class="form-select form-select-md" aria-label="open" [(ngModel)]="newWire.wiresecondconn" #secondconn="ngModel" required>
+          <option *ngFor="let connector of connectors">{{connector}}</option>
+        </select>
+        <div [hidden]="secondconn.valid||secondconn.untouched" class="alert alert-danger">
+          Не указан разьем
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="row justify-content-center mb-3">
+
+      <div class="container text-center">
+        <button type="submit" class="btn btn-primary" (click)="PostWire()" [disabled]="wirename.invalid||firstconn.invalid||length.invalid||secondconn.invalid">Make Wire</button>
+      </div>
+
+    </div>
+
+    <h2 class="mb-3">{{status}}</h2>
+
+    <h2>{{availablelength}}</h2>
+
+    <div class="row">
 
       <div class="col-12">
         <table class="table table-striped table-primary table-hover text-center">
@@ -72,23 +112,27 @@
                            [ngTemplateOutletContext]="{$implicit:wire}">
 
               </ng-template>
+
             </tr>
 
           </tbody>
         </table>
       </div>
+
     </div>
+
+
   </div>
-  
 </div>
+  
 
 <ng-template #readonlytemp let-wire>
 
   
-  <td>{{wire.name}}</td>
-  <td>{{wire.firstconn}}</td>
-  <td>{{wire.length}}</td>
-  <td>{{wire.secondconn}}</td>
+  <td>{{wire.wirename}}</td>
+  <td>{{wire.wirefirstconn}}</td>
+  <td>{{wire.wirelength}}</td>
+  <td>{{wire.wiresecondconn}}</td>
   <td>
     <input type="button" class="btn btn-warning" value="Edit" (click)="EditWire(wire)" />
   </td>
@@ -103,18 +147,18 @@
   
   
   <td>
-    <input type="text" [(ngModel)] = "editWire.name" class="form-control" name="editname" #editname="ngModel" required />
+    <input type="text" [(ngModel)] = "editWire.wirename" class="form-control" #editname="ngModel" required />
   </td>
   <td>
-    <select class="form-select form-select-md" aria-label="open" [(ngModel)]="editWire.firstconn" name="editfirstconn" #editfirstconn="ngModel" required>
+    <select class="form-select form-select-md" aria-label="open" [(ngModel)]="editWire.wirefirstconn" #editfirstconn="ngModel" required>
       <option *ngFor="let connector of connectors">{{connector}}</option>
     </select>
   </td>
   <td>
-    <input type="number" (ngModelChange) = "MinusCancelEdit(editlength)" [ngModel] = "editWire.length" class="form-control" name="editlength" #editlength="ngModel" required />
+    <input type="number" (ngModelChange) = "MinusCancelEdit(editlength)" [ngModel] = "editWire.wirelength" class="form-control" #editlength="ngModel" required />
   </td>
   <td>
-    <select class="form-select form-select-md" aria-label="open" [(ngModel)]="editWire.secondconn" name="editsecondconn" #editsecondconn="ngModel" required>
+    <select class="form-select form-select-md" aria-label="open" [(ngModel)]="editWire.wiresecondconn" #editsecondconn="ngModel" required>
       <option *ngFor="let connector of connectors">{{connector}}</option>
     </select>
   </td>
