@@ -41,6 +41,8 @@ export class MakeWireComponent implements OnInit {
 
   coilname: string = "";
 
+  coillength: number = 0;
+
   availablelength: number = 0;
 
   status: string;
@@ -99,7 +101,7 @@ export class MakeWireComponent implements OnInit {
 
   ProgresChange() {
 
-    this.percent = this.availablelength/this.newWire.wirecoil.length * 100  ;
+    this.percent = this.availablelength/this.newWire.coil.length * 100  ;
 
     this.progressbar.nativeElement.style.width = `${this.percent}%`;
 
@@ -121,7 +123,7 @@ export class MakeWireComponent implements OnInit {
 
   EditWire(wire: Wire) {
 
-    this.editWire = new Wire(wire._id, wire.wirename, wire.wirefirstconn, wire.wiresecondconn,null, wire.wirelength);
+    this.editWire = new Wire(wire._id, wire.name, wire.firstconn, wire.secondconn,null, wire.length);
 
   }
 
@@ -142,11 +144,18 @@ export class MakeWireComponent implements OnInit {
 
   PostWire() {
 
+    this.newWire.coil.length = this.availablelength;
     this.serv.postWire(this.newWire as Wire).subscribe(_ => {
-      this.LoadWires();
-      this.status = `Кабель ${this.newWire.wirename} успешно создан, его характеристики: ${this.newWire.wirefirstconn}-${this.newWire.wiresecondconn},${this.newWire.wirelength}м`;
 
-    })
+
+      this.LoadWires();
+      this.status = `Кабель ${this.newWire.name} успешно создан, его характеристики: ${this.newWire.firstconn}-${this.newWire.secondconn},${this.newWire.length}м`;
+
+    });
+
+    this.service.editCoil(this.newWire.coil as Coil).subscribe(_ => {
+      this.LoadCoils();
+    });
     
     
 
@@ -176,8 +185,8 @@ export class MakeWireComponent implements OnInit {
       length.reset();
     }
     else {
-      this.newWire.wirelength = length.value;
-      this.availablelength = this.newWire.wirecoil.length - length.value;
+      this.newWire.length = length.value;
+      this.availablelength = this.newWire.coil.length - length.value;
       if (this.availablelength < 0) {
         this.availablelength = 0;
         
@@ -193,19 +202,25 @@ export class MakeWireComponent implements OnInit {
       length.reset();
     }
     else {
-      this.editWire.wirelength = length.value;
+      this.editWire.length = length.value;
     }
 
   }
 
   SetCoil() {
 
-    
-    this.newWire.wirecoil = this.coils.find(c => c.name == this.coilname);
+    try {
 
-    this.availablelength = this.newWire.wirecoil.length;
+      this.newWire.coil = this.coils.find(c => c.name == this.coilname);
 
-    this.ProgresChange();
+      this.availablelength = this.newWire.coil.length;
+
+      this.coillength = this.newWire.coil.length;
+
+      this.ProgresChange();
+
+    } catch (e) {}
+   
 
   }
 
