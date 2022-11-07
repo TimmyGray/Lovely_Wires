@@ -1,5 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { Coil } from '../components/models/coil';
 
 
@@ -10,7 +11,7 @@ export class CoilService{
 
   constructor(private client: HttpClient) { }
 
-  getCoils() {
+  getCoils(): Observable<any> {
 
     const headers: HttpHeaders = new HttpHeaders().set("Content-Type", "application/json");
 
@@ -19,7 +20,7 @@ export class CoilService{
 
   }
 
-  getOneWire(id:string) {
+  getOneWire(id: string): Observable<any> {
 
     const headers: HttpHeaders = new HttpHeaders().set("Content_Type", "application/json");
 
@@ -27,7 +28,7 @@ export class CoilService{
 
   }
 
-  postCoil(coil: Coil) {
+  postCoil(coil: Coil): Observable<any> {
 
     const headers: HttpHeaders = new HttpHeaders().set("Content-Type", "application/json");
 
@@ -36,7 +37,7 @@ export class CoilService{
 
   }
 
-  editCoil(coil: Coil) {
+  editCoil(coil: Coil): Observable<any> {
 
     const headers: HttpHeaders = new HttpHeaders().set("Content-Type", 'application/json');
 
@@ -44,7 +45,7 @@ export class CoilService{
 
   }
 
-  deleteCoil(id: string) {
+  deleteCoil(id: string): Observable<any> {
 
     return this.client.delete<Coil>(this.url + `/deletecoil/${id}`);
 

@@ -62,7 +62,7 @@ export class MakeCoilComponent implements OnInit {
       this.service.postCoil(this.NewCoil as Coil).subscribe((_) => {
 
         this.coils.push(this.NewCoil);
-        this.status = `Катушка ${this.NewCoil.coilname} успешно создана`;
+        this.status = `Катушка ${this.NewCoil.name} успешно создана`;
         this.NewCoil = new Coil("", "", "", "", 0);
 
       }, (err) => {
@@ -82,7 +82,7 @@ export class MakeCoilComponent implements OnInit {
       this.service.editCoil(this.EditCoil as Coil).subscribe((_) => {
 
         this.GetAllCoils();
-        this.status = `Катушка ${this.EditCoil.coilname} успешна обновлена`;
+        this.status = `Катушка ${this.EditCoil.name} успешна обновлена`;
         this.EditCoil = null;
 
       }, (err) => {
@@ -105,7 +105,7 @@ export class MakeCoilComponent implements OnInit {
       this.service.deleteCoil(deletecoil._id).subscribe((_) => {
 
         this.GetAllCoils();
-        this.status = `Катушка ${deletecoil.coilname} успешна удалена`;
+        this.status = `Катушка ${deletecoil.name} успешна удалена`;
 
       }, (err) => {
 
@@ -159,7 +159,7 @@ export class MakeCoilComponent implements OnInit {
 
     }
     else {
-      this.NewCoil.coillength = length.value;
+      this.NewCoil.length = length.value;
     }
 
   }
@@ -173,7 +173,7 @@ export class MakeCoilComponent implements OnInit {
     }
     else {
 
-      this.EditCoil.coillength = length.value;
+      this.EditCoil.length = length.value;
 
     }
 

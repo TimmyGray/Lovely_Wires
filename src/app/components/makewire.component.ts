@@ -26,23 +26,15 @@ export class MakeWireComponent implements OnInit {
   @ViewChild('progresstest', { static: false })
   progressbar: ElementRef | undefined;
 
-  
 
   
-
-  ngOnInit() {
-    this.LoadWires();
-    this.LoadCoils();
-  }
 
   wires: Array<Wire>;
 
   coils: Array<Coil>;
 
-  currentcoil: Coil;
-
   connectors: Array<string>;
-  
+
   editWire: Wire | null=null;
 
   newWire: Wire | null = null;
@@ -51,11 +43,17 @@ export class MakeWireComponent implements OnInit {
 
   availablelength: number = 0;
 
-  coillength: number = 0;
-
   status: string;
 
   percent: number;
+
+  ngOnInit() {
+
+    this.LoadWires();
+    this.LoadCoils();
+
+
+  }
 
   constructor(private serv: WireService, private service: CoilService) {
 
@@ -70,9 +68,38 @@ export class MakeWireComponent implements OnInit {
 
   }
 
+  private LoadWires() {
+
+
+    this.serv.getWires().subscribe((data: Array<Wire>) => {
+
+      this.wires = data;
+
+    });
+    
+  }
+
+  private LoadCoils() {
+
+
+
+    this.service.getCoils().subscribe((data: Array<Coil>) => {
+
+
+      data.forEach(c => {
+
+        this.coils.push(c);
+
+      });
+
+    });
+
+
+  }
+
   ProgresChange() {
 
-    this.percent = this.availablelength/this.newWire.wirecoil.coillength * 100  ;
+    this.percent = this.availablelength/this.newWire.wirecoil.length * 100  ;
 
     this.progressbar.nativeElement.style.width = `${this.percent}%`;
 
@@ -90,23 +117,7 @@ export class MakeWireComponent implements OnInit {
 
   }
 
-  private LoadWires() {
-    this.serv.getWires().subscribe((data: Array<Wire>) => {
-
-      this.wires = data;
-
-    })
-  }
-
-  private LoadCoils() {
-
-    this.service.getCoils().subscribe((data: Array<Coil>) => {
-
-      this.coils = data;
-
-    })
-
-  }
+  
 
   EditWire(wire: Wire) {
 
@@ -159,20 +170,24 @@ export class MakeWireComponent implements OnInit {
 
   }
 
-  MinusCancelNew(length: NgModel) {
+  CheckLengthNew(length: NgModel) {
 
     if (length.value < 0) {
       length.reset();
     }
     else {
       this.newWire.wirelength = length.value;
-      this.availablelength = this.newWire.wirecoil.coillength - length.value;
+      this.availablelength = this.newWire.wirecoil.length - length.value;
+      if (this.availablelength < 0) {
+        this.availablelength = 0;
+        
+      }
       this.ProgresChange();
     }
 
   }
 
-  MinusCancelEdit(length: NgModel) {
+  CheckLengthEdit(length: NgModel) {
 
     if (length.value < 0) {
       length.reset();
@@ -186,8 +201,11 @@ export class MakeWireComponent implements OnInit {
   SetCoil() {
 
     
-    this.newWire.wirecoil = this.coils.find(c => c.coilname == this.coilname);
+    this.newWire.wirecoil = this.coils.find(c => c.name == this.coilname);
 
+    this.availablelength = this.newWire.wirecoil.length;
+
+    this.ProgresChange();
 
   }
 

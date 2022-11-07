@@ -8,7 +8,7 @@
     <div class="col-lg-4 col-6">
 
       <label for="CoilName" class="text-primary">Coil's name</label>
-      <input type="text" id="CoilName" class="form-control" [(ngModel)]="NewCoil.coilname" #coilname="ngModel" required />
+      <input type="text" id="CoilName" class="form-control" [(ngModel)]="NewCoil.name" #coilname="ngModel" required />
       <div [hidden]="coilname.untouched||coilname.valid" class="alert alert-danger">Необходимо указать имя</div>
 
     </div>
@@ -16,7 +16,7 @@
     <div class="offset-lg-2 col-lg-4 col-6 mb-5">
 
       <label for="CoilLength" class="text-primary">Coil's wire length</label>
-      <input type="number" id="CoilLength" class="form-control" (ngModelChange)="CancelMinusNew(coillength)" [ngModel]="NewCoil.coillength" #coillength="ngModel" required/>
+      <input type="number" id="CoilLength" class="form-control" (ngModelChange)="CancelMinusNew(coillength)" [ngModel]="NewCoil.length" #coillength="ngModel" required/>
       <div [hidden]="coillength.valid||coillength.untouched" class="alert alert-danger">Необходимо указать длину</div>
 
     </div>
@@ -24,7 +24,8 @@
     <div class="col-lg-4 col-6">
 
       <label for="CoilType" class="text-primary">Coil's wire type</label>
-      <select id="CoilType" class="form-select" [(ngModel)]="NewCoil.coiltype" #coiltype="ngModel" required>
+      <select id="CoilType" class="form-select" [(ngModel)]="NewCoil.type" #coiltype="ngModel" required>
+        <option value="">Тип провода</option>
         <option *ngFor="let type of wiretypes">{{type}}</option>
       </select>
       <div [hidden]="coiltype.valid||coiltype.untouched" class="alert alert-danger">Необходимо указать тип</div>
@@ -34,7 +35,8 @@
     <div class="offset-lg-2 col-lg-4 col-6 mb-5">
 
       <label for="CoreNumber" class="text-primary">Number of wire's core</label>
-      <select id="CoreNumber" class="form-select" [(ngModel)]="NewCoil.coilcorenumber" #coilcorenumber="ngModel" required>
+      <select id="CoreNumber" class="form-select" [(ngModel)]="NewCoil.corenumber" #coilcorenumber="ngModel" required>
+        <option value="">Количество жил у провода</option>
         <option *ngFor="let number of corenumbers">{{number}}</option>
       </select>
       <div [hidden]="coilcorenumber.valid||coilcorenumber.untouched" class="alert alert-danger">Необходимо указать количество жил</div>
@@ -47,9 +49,9 @@
 
   </div>
 
-  <div>
+  <div class="mb-5">
 
-    <h4>{{status}}</h4>
+    <h4 class="text-center">{{status}}</h4>
 
   </div>
 
@@ -86,10 +88,10 @@
 
 <ng-template #readonlytemp let-coil>
 
-  <td>{{coil.coilname}}</td>
-  <td>{{coil.coiltype}}</td>
-  <td>{{coil.coilcorenumber}}</td>
-  <td>{{coil.coillength}}</td>
+  <td>{{coil.name}}</td>
+  <td>{{coil.type}}</td>
+  <td>{{coil.corenumber}}</td>
+  <td>{{coil.length}}</td>
   <td><button class="btn btn-warning" (click)="Edit(coil)">Edit</button></td>
   <td><button class="btn btn-danger" (click)="DeleteCoil(coil)">Delete</button></td>
 
@@ -98,18 +100,18 @@
 
 <ng-template #editabletemp>
 
-  <td><input type="text" class="form-control" [(ngModel)]="EditCoil.coilname" #coilname="ngModel" required /></td>
+  <td><input type="text" class="form-control" [(ngModel)]="EditCoil.name" #coilname="ngModel" required /></td>
   <td>
-    <select class="form-select" [(ngModel)] ="EditCoil.coiltype" #coiltype="ngModel" required>
+    <select class="form-select" [(ngModel)] ="EditCoil.type" #coiltype="ngModel" required>
       <option *ngFor="let type of wiretypes">{{type}}</option>
     </select>
   </td>
   <td>
-    <select class="form-select" [(ngModel)]="EditCoil.coilcorenumber" #coilcorenumber="ngModel" required>
+    <select class="form-select" [(ngModel)]="EditCoil.corenumber" #coilcorenumber="ngModel" required>
       <option *ngFor="let number of corenumbers">{{number}}</option>
     </select>
   </td>
-  <td><input class="form-control" (ngModelChange)="CancelMinusEdit(coillength)" [ngModel]="EditCoil.coillength" #coillength="ngModel" required /></td>
+  <td><input class="form-control" (ngModelChange)="CancelMinusEdit(coillength)" [ngModel]="EditCoil.length" #coillength="ngModel" required /></td>
   <td><button class="btn btn-primary" (click)="PutCoil()" [disabled]="coilname.invalid||coiltype.invalid||coilcorenumber.invalid||coillength.invalid" >Save</button></td>
   <td><button class="btn btn-warning" (click)="Cancel()" >Cancel</button></td>
 

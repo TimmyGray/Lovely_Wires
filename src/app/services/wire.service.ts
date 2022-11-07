@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Wire } from '../components/models/wire';
+import { Observable } from 'rxjs';
+
 
 @Injectable()
 export class WireService {
@@ -10,12 +12,12 @@ export class WireService {
 
   constructor(private http: HttpClient) { }
 
-  getWires() {
+  getWires(): Observable<any> {
 
     return this.http.get<Array<Wire>>(this.url);
   }
 
-  postWire(wire: Wire) {
+  postWire(wire: Wire): Observable<any> {
 
     const httpheaders = new HttpHeaders().set("Content-Type", "application/json");
 
@@ -23,7 +25,7 @@ export class WireService {
 
   }
 
-  editWire(wire: Wire) {
+  editWire(wire: Wire): Observable<any> {
 
     const httpheaders = new HttpHeaders().set("Content-Type", "application/json");
 
@@ -31,7 +33,7 @@ export class WireService {
 
   }
 
-  deleteWire(id: string) {
+  deleteWire(id: string): Observable<any> {
 
     return this.http.delete<Wire>(this.url + '/deletewire/' + id);
 
