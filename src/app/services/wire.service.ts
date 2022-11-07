@@ -17,6 +17,12 @@ export class WireService {
     return this.http.get<Array<Wire>>(this.url);
   }
 
+  getOrderWires(order: boolean, group: string): Observable<any> {
+
+    return this.http.get<Array<Wire>>(this.url + `/` + group+`/`+order);
+
+  }
+
   postWire(wire: Wire): Observable<any> {
 
     const httpheaders = new HttpHeaders().set("Content-Type", "application/json");

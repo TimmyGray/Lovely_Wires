@@ -31,7 +31,6 @@ export class MakeCoilComponent implements OnInit {
 
   coils: Array<Coil>;
 
-  
 
   status: string = "";
 

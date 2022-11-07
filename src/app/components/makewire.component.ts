@@ -26,6 +26,14 @@ export class MakeWireComponent implements OnInit {
   @ViewChild('progresstest', { static: false })
   progressbar: ElementRef | undefined;
 
+  @ViewChild('firstconth', { static: false })
+  firstconn: ElementRef | undefined
+
+  @ViewChild('lengthth', { static: false })
+  length: ElementRef | undefined
+
+  @ViewChild('secondconnth', { static: false })
+  secondconn: ElementRef | undefined
 
   
 
@@ -47,13 +55,16 @@ export class MakeWireComponent implements OnInit {
 
   status: string;
 
+  orderfirst: boolean = true;
+  ordersecond: boolean = true;
+  orderlength: boolean = true;
+
   percent: number;
 
   ngOnInit() {
 
     this.LoadWires();
     this.LoadCoils();
-
 
   }
 
@@ -65,13 +76,11 @@ export class MakeWireComponent implements OnInit {
 
     this.newWire = new Wire("", "", "", "", null, 0);
 
-    
     this.connectors = Connectors;
 
   }
 
   private LoadWires() {
-
 
     this.serv.getWires().subscribe((data: Array<Wire>) => {
 
@@ -83,10 +92,7 @@ export class MakeWireComponent implements OnInit {
 
   private LoadCoils() {
 
-
-
     this.service.getCoils().subscribe((data: Array<Coil>) => {
-
 
       data.forEach(c => {
 
@@ -96,7 +102,6 @@ export class MakeWireComponent implements OnInit {
 
     });
 
-
   }
 
   ProgresChange() {
@@ -104,7 +109,6 @@ export class MakeWireComponent implements OnInit {
     this.percent = this.availablelength/this.newWire.coil.length * 100  ;
 
     this.progressbar.nativeElement.style.width = `${this.percent}%`;
-
 
   }
 
@@ -115,6 +119,7 @@ export class MakeWireComponent implements OnInit {
       return this.editabletemp;
 
     }
+
     return this.readonlytemp;
 
   }
@@ -137,7 +142,6 @@ export class MakeWireComponent implements OnInit {
       this.status = "Успешно отредактировано";
       this.editWire = null;
 
-
     })
 
   }
@@ -146,7 +150,6 @@ export class MakeWireComponent implements OnInit {
 
     this.newWire.coil.length = this.availablelength;
     this.serv.postWire(this.newWire as Wire).subscribe(_ => {
-
 
       this.LoadWires();
       this.status = `Кабель ${this.newWire.name} успешно создан, его характеристики: ${this.newWire.firstconn}-${this.newWire.secondconn},${this.newWire.length}м`;
@@ -157,8 +160,6 @@ export class MakeWireComponent implements OnInit {
       this.LoadCoils();
     });
     
-    
-
   }
 
 
@@ -221,6 +222,124 @@ export class MakeWireComponent implements OnInit {
 
     } catch (e) {}
    
+
+  }
+
+
+  Sorting(event: any) {
+
+    const group: string = event.target.textContent;
+    const correctgroup: string = group.toLowerCase().split(" ").toString().replace(",","");
+
+    if (correctgroup == "firstconnector") {
+
+      if (this.orderfirst) {
+
+        this.serv.getOrderWires(this.orderfirst, correctgroup).subscribe((data: Array<Wire>) => {
+
+          this.wires = data;
+
+        }, (err) => {
+
+          console.log(err);
+
+
+        });
+
+        this.orderfirst = false;
+
+      }
+      else {
+
+        this.serv.getOrderWires(this.orderfirst, correctgroup).subscribe((data: Array<Wire>) => {
+
+          this.wires = data;
+
+        }, (err) => {
+
+          console.log(err);
+
+
+        });
+
+        this.orderfirst = true;
+
+      }
+
+    }
+    else if (correctgroup == "length") {
+
+      if (this.orderlength) {
+
+        this.serv.getOrderWires(this.orderlength, correctgroup).subscribe((data: Array<Wire>) => {
+
+          this.wires = data;
+
+        }, (err) => {
+
+          console.log(err);
+
+
+        });
+
+        this.orderlength = false;
+
+      }
+      else {
+
+        this.serv.getOrderWires(this.orderlength, correctgroup).subscribe((data: Array<Wire>) => {
+
+          this.wires = data;
+
+        }, (err) => {
+
+          console.log(err);
+
+
+        });
+
+        this.orderlength = true;
+
+      }
+
+    }
+    else {
+
+            if (this.ordersecond) {
+
+              this.serv.getOrderWires(this.ordersecond, correctgroup).subscribe((data: Array<Wire>) => {
+
+                this.wires = data;
+
+              }, (err) => {
+
+                console.log(err);
+
+              });
+
+              this.ordersecond = false;
+
+            }
+            else {
+
+              this.serv.getOrderWires(this.ordersecond, correctgroup).subscribe((data: Array<Wire>) => {
+
+                this.wires = data;
+
+              }, (err) => {
+
+                console.log(err);
+
+
+              });
+
+
+              this.ordersecond = true;
+
+            }
+
+         }
+
 
   }
 
