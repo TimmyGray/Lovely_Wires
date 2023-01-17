@@ -1,0 +1,120 @@
+<div class="container">
+  <h1>Orders Manager</h1>
+  <div>
+    <table class="table table-info table-striped table-hover text-center">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Date of create</th>
+          <th>Client</th>
+          <th>Client's email</th>
+          <th>Status</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ord of orders;let i=index" (click)="startEdit(ord)" data-bs-toggle="modal" data-bs-target="#ordersBuys">
+          <td>{{ord.name}}</td>
+          <td>{{ord.created}}</td>
+          <td>{{ord.client.name}}</td>
+          <td>{{ord.client.email}}</td>
+          <td *ngIf="!edit;">{{ord.status}}</td>
+          <td *ngIf="edit">
+            <select class="form-select">
+              <option value="">Сменить статус</option>
+              <option *ngFor="let status of stats">{{status}}</option>
+            </select>
+          </td>
+          <ng-template *ngIf="!edit;else editorder">
+
+            <td>
+              <button class="btn btn-warning">Edit</button>
+            </td>
+            <td>
+              <button *ngIf="!edit" class="btn btn-danger">Delete</button>
+            </td>
+
+          </ng-template>
+          <ng-template #editorder>
+
+            <td>
+              <button class="btn btn-primary">Save</button>
+            </td>
+            <td>
+              <button *ngIf="!edit" class="btn btn-warning">Cancel</button>
+            </td>
+
+          </ng-template>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <div class="modal fade" id="ordersBuys" aria-labelledby="modalLabel" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 id="modalLabel">{{editorder.name}}</h5>
+            <h6>{{editorder.client.name}}-{{editorder.client.email}}</h6>
+            <button type="button" data-bs-dismiss="modal" aria-label="close" (click)="cancelEdit()" class="btn-close"></button>
+          </div>
+          <div class="modal-body">
+
+            <table class="table table-secondary">
+              <thead>
+                <tr>
+                  <th>Buy's name</th>
+                  <th>Item</th>
+                  <th>Cost</th>
+                  <th>Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of listofbuys">
+                  <td>{{item.name}}</td>
+                  <td>{{item.item}}</td>
+                  <td>{{item.cost}}</td>
+                  <td>{{item.count}}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div>
+              <label for="statusSelect">Order status</label>
+              <select id="statusSelect" class="form-select" [(ngModel)]=tempstatus>
+                <option value="">Select status</option>
+                <option *ngFor="let status of stats">{{status}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="row">
+
+              <button class="btn btn-secondary" (click)="cancelEdit()">Close</button>
+              <button class="btn btn-successful" (click)="putOrder()" >Edit</button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!--<ng-template #noneditable let-orders>
+  <td>{{order.name}}</td>
+  <td>{{order.created}}</td>
+  <td>{{order.status}}</td>
+</ng-template>
+
+<ng-template #editable>
+  <td>{{order.name}}</td>
+  <td>{{order.created}}</td>
+  <td>
+    <select class="form-select">
+      <option value="">Сменить статус</option>
+      <option *ngFor="let status of stats">{{status}}</option>
+    </select>
+  </td>
+</ng-template>-->

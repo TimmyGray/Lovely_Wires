@@ -1,8 +1,6 @@
 import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { Coil } from './models/coil';
-import {  Corenumbers } from './models/corenumber';
-import { Wiretypes } from './models/wiretype';
 import { CoilService } from '../services/coil.service';
 import { Console } from 'console';
 
@@ -38,8 +36,6 @@ export class MakeCoilComponent implements OnInit {
 
     this.coils = new Array<Coil>();
     this.NewCoil = new Coil("", "", "", "", 0);
-    this.wiretypes = Wiretypes;
-    this.corenumbers = Corenumbers;
 
 
   }

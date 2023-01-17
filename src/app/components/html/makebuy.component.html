@@ -1,0 +1,178 @@
+<div class="container">
+  <h5>Buys Manager</h5>
+  <div class="container">
+    <form>
+
+      <div class="row">
+
+        <div class="col-5">
+          <input
+                 type="text"
+                 class="form-control"
+                 placeholder="Buy's name"
+                 [(ngModel)]="newbuy.name"
+                 name="ngNewBuyName"/>
+        </div>
+
+        <div class="col-5">
+          <select
+                  class="form-select"
+                  [(ngModel)]="selectedwire"
+                  (ngModelChange)="selectItem()"
+                  name="ngNewBuyItem">
+            <option value="">Select item...</option>
+            <option [ngValue]="wire" *ngFor="let wire of wires">{{wire.name}}</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-6">
+          <h5>First connector:{{selectedfirstcon.name}},{{selectedfirstcon.type}}:{{firstconprice.cost}}$</h5>
+          <h5>Second connector:{{selectedsecondcon.name}},{{selectedsecondcon.type}}:{{secondconprice.cost}}$</h5>
+          <h5>Coil:{{selectedcoil.name}},{{selectedcoil.type}}:{{coilprice.cost}}$</h5>
+          <h5>Wire's length:{{selectedwire.length}}m</h5>
+          <h4>Cost:{{newbuy.cost}}$</h4>
+
+        </div>
+        <div class="col-4">
+
+          <input
+                 class="form-control"
+                 type="number"
+                 [(ngModel)]="newbuy.count"
+                 (ngModelChange)="changeCost(true)"
+                 name="ngNewBuyCount"/>
+
+        </div>
+      </div>
+
+      <div class="container">
+
+        <textarea
+                  class="form-control"
+                  [(ngModel)]="newbuy.description"
+                  rows="5"
+                  name="ngNewBuyDescriprion"></textarea>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-5">
+
+          <button class="btn btn-secondary" (click)="resetBuy()">Reset</button>
+
+        </div>
+
+        <div class="col-5">
+
+          <button class="btn btn-primary" (click)="postBuy()">Make buy</button>
+
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="container">
+
+    <table class="table table-hover table-striped table-dark">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Decription</th>
+          <th>Item</th>
+          <th>Cost</th>
+          <th>Count</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+            (click)="editBuy(buy)"
+            *ngFor="let buy of buys"
+            data-bs-toggle="modal"
+            data-bs-target="#buysModal">
+
+          <td>{{buy.name}}</td>
+          <td>{{buy.description}}</td>
+          <td>{{buy.item}}</td>
+          <td>{{buy.cost}}</td>
+          <td>{{buy.count}}</td>
+          <td><button class="btn btn-danger" (click)="deleteBuy(buy._id,$event)">Delete</button></td>
+
+        </tr>
+      </tbody>
+    </table>
+
+    <div
+         class="modal fage"
+         id="buysModal"
+         aria-hidden="true"
+         aria-labelledby="modalLabel"
+         tabindex="-1">
+
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalLabel">{{editbuy.name}}</h5>
+            <button
+                    type="button"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    class="btn-close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="row">
+                <div class="col-5">
+                  <input
+                         type="text"
+                         class="form-control"
+                         placeholder="Change name"
+                         [(ngModel)]="editbuy.name"
+                         name="ngEditBuyName"/>
+                  
+                </div>
+                <div class="col-5">
+                  <input
+                         type="number"
+                         class="form-control"
+                         placeholder="Change count"
+                         [(ngModel)]="editbuy.count"
+                         (ngModelChange)="changeCost(false)"
+                         name="ngEditBuyCount"/>
+                  <p>{{editbuy.cost}}</p>
+                </div>
+              </div>
+              <div class="container">
+                <textarea
+                          class="form-control"
+                          rows="5"
+                          [(ngModel)]="editbuy.description"
+                          name="ngEditBuyDescription"></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <div class="row">
+              <div class="col-5">
+                <button class="btn btn-secondary btn-secondary" data-bs-dismiss="modal" (click)="cancelEdit()" >Cancel</button>
+              </div>
+              <div class="col-5">
+                <button class="btn btn-success" data-bs-dismiss="modal" (click)="saveEdit()">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+  </div>
+
+</div>

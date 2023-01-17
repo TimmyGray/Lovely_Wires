@@ -1,16 +1,17 @@
 import { Component, TemplateRef, OnInit, ViewChild,ElementRef } from '@angular/core';
 import { Wire } from './models/wire';
 import { WireService } from '../services/wire.service';
-import { Connectors } from './models/connector';
 import { NgModel } from '@angular/forms';
 import { CoilService } from '../services/coil.service';
 import { Coil } from './models/coil';
+import { Connector } from './models/connector';
+import { ConnectorService } from '../services/connector.service';
 
 @Component({
   selector: 'make-wire',
   templateUrl: './html/makewire.component.html',
   styleUrls: ['../styles/my-styles.css'],
-  providers: [WireService, CoilService]
+  providers: [WireService, CoilService, ConnectorService]
 })
 
 
@@ -41,7 +42,7 @@ export class MakeWireComponent implements OnInit {
 
   coils: Array<Coil>;
 
-  connectors: Array<string>;
+  connectors: Array<Connector>;
 
   editWire: Wire | null = null;
 
@@ -50,6 +51,16 @@ export class MakeWireComponent implements OnInit {
   coilname: string = "";
 
   coillength: number = 0;
+
+  firstconnector: string = "";
+
+  secondconnector: string = "";
+
+  firstcon: Connector;
+
+  secondcon: Connector;
+
+  coil: Coil;
 
   availablelength: number = 0;
 
@@ -65,24 +76,31 @@ export class MakeWireComponent implements OnInit {
 
     this.LoadWires();
     this.LoadCoils();
+    this.LoadConnectors();
 
   }
 
-  constructor(private serv: WireService, private service: CoilService) {
+  constructor(private wireserv: WireService, private coilserv: CoilService, private conserv: ConnectorService) {
 
     this.wires = new Array<Wire>();
 
     this.coils = new Array<Coil>();
 
-    this.newWire = new Wire("", "", "", "", null, 0);
+    this.coil = new Coil("", "", "", "", 0);
 
-    this.connectors = Connectors;
+    this.newWire = new Wire("", "", "", "", "", 0);
+
+    this.firstcon = new Connector("", "", "", 0);
+
+    this.secondcon = new Connector("", "", "", 0);
+
+    this.connectors = new Array<Connector>();
 
   }
 
   private LoadWires() {
 
-    this.serv.getWires().subscribe((data: Array<Wire>) => {
+    this.wireserv.getWires().subscribe((data: Array<Wire>) => {
 
       this.wires = data;
 
@@ -92,13 +110,23 @@ export class MakeWireComponent implements OnInit {
 
   private LoadCoils() {
 
-    this.service.getCoils().subscribe((data: Array<Coil>) => {
+    this.coilserv.getCoils().subscribe((data: Array<Coil>) => {
 
-      data.forEach(c => {
+      this.coils = data;
 
-        this.coils.push(c);
+    });
 
-      });
+  }
+
+  private LoadConnectors() {
+
+    this.conserv.getConnectors().subscribe((data: Array<Connector>) => {
+
+      this.connectors = data;
+
+    }, (e) => {
+
+      console.log(e);
 
     });
 
@@ -106,7 +134,7 @@ export class MakeWireComponent implements OnInit {
 
   ProgresChange() {
 
-    this.percent = this.availablelength / this.newWire.coil.length * 100;
+    this.percent = this.availablelength / this.coil.length * 100;
 
     this.progressbar.nativeElement.style.width = `${this.percent}%`;
 
@@ -128,7 +156,7 @@ export class MakeWireComponent implements OnInit {
 
   EditWire(wire: Wire) {
 
-    this.editWire = new Wire(wire._id, wire.name, wire.firstconn, wire.secondconn, null, wire.length);
+    this.editWire = new Wire(wire._id, wire.name, wire.firstconn, wire.secondconn, wire.coil, wire.length);
 
   }
 
@@ -136,41 +164,113 @@ export class MakeWireComponent implements OnInit {
 
   PutWire() {
 
-    this.serv.editWire(this.editWire as Wire).subscribe(_ => {
+    this.wireserv.editWire(this.editWire as Wire).subscribe((data) => {
 
       this.LoadWires();
       this.status = "Успешно отредактировано";
       this.editWire = null;
 
-    })
+    }, (e) => {
+
+      console.log(e);
+
+    });
 
   }
 
   PostWire() {
 
-    this.newWire.coil.length = this.availablelength;
-    this.serv.postWire(this.newWire as Wire).subscribe(_ => {
+    if (this.newWire.coil != ""
+      && this.newWire.name != ""
+      && this.newWire.firstconn != ""
+      && this.newWire.secondconn != ""
+      && this.newWire.length != 0) {
 
-      this.LoadWires();
-      this.status = `Кабель ${this.newWire.name} успешно создан, его характеристики: ${this.newWire.firstconn}-${this.newWire.secondconn},${this.newWire.length}м`;
+      let enougth: boolean;
 
-    });
+      if (this.firstcon._id == this.secondcon._id) {
 
-    this.service.editCoil(this.newWire.coil as Coil).subscribe(_ => {
-      this.LoadCoils();
-    });
+        enougth = 0 <= this.firstcon.count - 2;
+
+      }
+      else {
+
+        enougth = 0 <= (this.firstcon.count - 1 && this.secondcon.count - 1);
+
+      }
+
+      if (enougth) {
+
+        this.coil.length = this.availablelength;
+        this.wireserv.postWire(this.newWire as Wire).subscribe((data) => {
+
+          this.LoadWires();
+          this.status = `Кабель ${this.newWire.name} успешно создан, его характеристики: ${this.firstcon.type}-${this.secondcon.type},${this.newWire.length}м`;
+
+        }, (e) => {
+
+          return console.log(e);
+          
+
+        });
+
+        this.firstcon.count--;
+        this.secondcon.count--;
+
+        this.conserv.putConnector(this.firstcon as Connector).subscribe((data) => {
+
+
+
+        }, (e) => {
+
+          return console.log(e);
+
+        });
+
+        this.conserv.putConnector(this.secondcon as Connector).subscribe((data) => {
+
+          this.LoadConnectors();
+
+        }, (e) => {
+
+          return console.log(e);
+
+        });
+
+        this.coilserv.editCoil(this.coil as Coil).subscribe(_ => {
+          this.LoadCoils();
+        });
+
+      }
+      else {
+
+        console.log("Недостаточно разъемов");
+
+      }
+
+
+    }
+    else {
+
+      console.log('Есть пустые поля, которые нужно заполнить');
+
+    }
 
   }
 
 
   DeleteWire(delwire: Wire) {
 
-    this.serv.deleteWire(delwire._id).subscribe(_ => {
+    this.wireserv.deleteWire(delwire._id).subscribe((data) => {
 
       this.status = "Успешно удалено";
       this.LoadWires();
 
-    })
+    }, (e) => {
+
+      console.log(e);
+
+    });
 
   }
 
@@ -180,14 +280,43 @@ export class MakeWireComponent implements OnInit {
 
   }
 
+  setConnector(isFirst: boolean) {
+
+    if (isFirst) {
+
+      const nameandtype = this.firstconnector.split('-');
+
+      this.firstcon = this.connectors.find(c => c.name == nameandtype[0] && c.type == nameandtype[1]);
+
+      this.newWire.firstconn = this.firstcon._id;
+
+      console.log(`first connector is ${this.firstcon.name}`);
+    }
+
+    else {
+
+      const nameandtype = this.secondconnector.split('-');
+
+      this.secondcon = this.connectors.find(c => c.name == nameandtype[0] && c.type == nameandtype[1]);
+
+      this.newWire.secondconn = this.secondcon._id;
+
+      console.log(`second connector is ${this.secondcon.name}`);
+    }
+
+  }
+
   CheckLengthNew(length: NgModel) {
 
     if (length.value < 0) {
       length.reset();
     }
     else {
+
       this.newWire.length = length.value;
-      this.availablelength = this.newWire.coil.length - length.value;
+
+      this.availablelength = this.coil.length - length.value;
+
       if (this.availablelength < 0) {
         this.availablelength = 0;
 
@@ -212,16 +341,30 @@ export class MakeWireComponent implements OnInit {
 
     try {
 
-      this.newWire.coil = this.coils.find(c => c.name == this.coilname);
+      this.coil = this.coils.find(c => c.name == this.coilname);
 
-      this.availablelength = this.newWire.coil.length;
+      this.newWire.coil = this.coil._id;
 
-      this.coillength = this.newWire.coil.length;
+      this.availablelength = this.coil.length;
+
+      this.coillength = this.coil.length;
 
       this.ProgresChange();
 
-    } catch (e) { }
+    } catch (e) {
 
+      console.log(e);
+
+    }
+
+
+  }
+
+  getConnectorName(id: string): string {
+
+    const conn: Connector = this.connectors.find(c => c._id == id);
+
+    return conn.type;
 
   }
 
@@ -236,7 +379,7 @@ export class MakeWireComponent implements OnInit {
         {
           if (this.orderfirst==1) {
 
-            this.serv.getOrderWires(this.orderfirst, correctgroup).subscribe((data: Array<Wire>) => {
+            this.wireserv.getOrderWires(this.orderfirst, correctgroup).subscribe((data: Array<Wire>) => {
 
               this.wires = data;
 
@@ -252,7 +395,7 @@ export class MakeWireComponent implements OnInit {
           }
           else {
 
-            this.serv.getOrderWires(this.orderfirst, correctgroup).subscribe((data: Array<Wire>) => {
+            this.wireserv.getOrderWires(this.orderfirst, correctgroup).subscribe((data: Array<Wire>) => {
 
               this.wires = data;
 
@@ -274,7 +417,7 @@ export class MakeWireComponent implements OnInit {
         {
           if (this.orderlength==1) {
 
-            this.serv.getOrderWires(this.orderlength, correctgroup).subscribe((data: Array<Wire>) => {
+            this.wireserv.getOrderWires(this.orderlength, correctgroup).subscribe((data: Array<Wire>) => {
 
               this.wires = data;
 
@@ -290,7 +433,7 @@ export class MakeWireComponent implements OnInit {
           }
           else {
 
-            this.serv.getOrderWires(this.orderlength, correctgroup).subscribe((data: Array<Wire>) => {
+            this.wireserv.getOrderWires(this.orderlength, correctgroup).subscribe((data: Array<Wire>) => {
 
               this.wires = data;
 
@@ -314,7 +457,7 @@ export class MakeWireComponent implements OnInit {
 
           if (this.ordersecond==1) {
 
-            this.serv.getOrderWires(this.ordersecond, correctgroup).subscribe((data: Array<Wire>) => {
+            this.wireserv.getOrderWires(this.ordersecond, correctgroup).subscribe((data: Array<Wire>) => {
 
               this.wires = data;
 
@@ -329,7 +472,7 @@ export class MakeWireComponent implements OnInit {
           }
           else {
 
-            this.serv.getOrderWires(this.ordersecond, correctgroup).subscribe((data: Array<Wire>) => {
+            this.wireserv.getOrderWires(this.ordersecond, correctgroup).subscribe((data: Array<Wire>) => {
 
               this.wires = data;
 

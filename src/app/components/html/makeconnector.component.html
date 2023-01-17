@@ -1,0 +1,67 @@
+<div class="container">
+  <h1>Connectors Manager</h1>
+  <form>
+
+    <div class="row">
+
+      <div class="col-5">
+
+        <label for="ConName">name</label>
+        <input id="ConName" class="form-control" type="text" [(ngModel)]="newConn.name" name="conname" #conName="ngModel" />
+
+      </div>
+
+      <div class="col-5">
+
+        <label for="ConType">type</label>
+        <input id="ConType" class="form-control" type="text" [(ngModel)]="newConn.type" name="contype" #conType="ngModel" />
+
+      </div>
+
+      <div class="col-2">
+
+        <label for="ConCount">count</label>
+        <input id="ConCount" class="form-control" type="number" [(ngModel)]="newConn.count" name="concount" #conCount="ngModel" />
+
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-5">
+
+        <button (click)="postConnector()" [disabled]="editBut" [hidden]="editBut" class="btn btn-primary">Make connector</button>
+        <button (click)="putConnector()" [disabled]="!editBut" [hidden] ="!editBut" class="btn btn-success">Edit connector</button>
+
+      </div>
+
+      <div class="col-5">
+
+        <button (click)="resetConnector()" class="btn btn-warning">Reset</button>
+
+      </div>
+     
+    </div>
+
+  </form>
+  <table class="mt-3 table table-striped table-success table-hover text-center">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Count</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let con of connectors; let i=index">
+        <td>{{con.name}}</td>
+        <td>{{con.type}}</td>
+        <td>{{con.count}}</td>
+        <td><button class="btn btn-warning" [disabled]="!editOn[i]" (click)="edit(con,i)">Edit</button></td>
+        <td><button class="btn btn-danger" (click)="deleteConn(con._id)">Delete</button></td>
+      </tr>
+    </tbody>
+
+  </table>
+
+</div>

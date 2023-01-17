@@ -23,28 +23,22 @@
 
     <div class="col-lg-4 col-6">
 
-      <label for="CoilType" class="text-primary">Coil's wire type</label>
-      <select id="CoilType" class="form-select" [(ngModel)]="NewCoil.type" #coiltype="ngModel" required>
-        <option value="">Тип провода</option>
-        <option *ngFor="let type of wiretypes">{{type}}</option>
-      </select>
-      <div [hidden]="coiltype.valid||coiltype.untouched" class="alert alert-danger">Необходимо указать тип</div>
+      <label for="TypeOfSignal" class="text-primary">Signal's type</label>
+      <input id="TypeOfSignal" type="text" class="form-control" [(ngModel)]="NewCoil.typeofsignal" #typeofsignal="ngModel" required>
+      <div [hidden]="typeofsignal.valid||typeofsignal.untouched" class="alert alert-danger">Необходимо указать тип</div>
 
     </div>
 
     <div class="offset-lg-2 col-lg-4 col-6 mb-5">
 
       <label for="CoreNumber" class="text-primary">Number of wire's core</label>
-      <select id="CoreNumber" class="form-select" [(ngModel)]="NewCoil.corenumber" #coilcorenumber="ngModel" required>
-        <option value="">Количество жил у провода</option>
-        <option *ngFor="let number of corenumbers">{{number}}</option>
-      </select>
+      <input id="CoreNumber" type="text" class="form-control" [(ngModel)]="NewCoil.type" #coilcorenumber="ngModel" required>
       <div [hidden]="coilcorenumber.valid||coilcorenumber.untouched" class="alert alert-danger">Необходимо указать количество жил</div>
 
     </div>
 
     <div class="offset-2 col-4">
-      <button type="submit" class="btn btn-primary" [disabled]="coilname.invalid||coillength.invalid||coiltype.invalid||coilcorenumber.invalid" (click)="PostCoil()">Make Coil</button>
+      <button type="submit" class="btn btn-primary" [disabled]="coilname.invalid||coillength.invalid||typeofsignal.invalid||coilcorenumber.invalid" (click)="PostCoil()">Make Coil</button>
     </div>
 
   </div>
@@ -61,7 +55,7 @@
       <thead>
         <tr>
           <th>Name</th>
-          <th>Type</th>
+          <th>Type of signal</th>
           <th>Number of wire's core</th>
           <th>Wire's length</th>
           <th>Edit</th>
@@ -89,8 +83,8 @@
 <ng-template #readonlytemp let-coil>
 
   <td>{{coil.name}}</td>
+  <td>{{coil.typeofsignal}}</td>
   <td>{{coil.type}}</td>
-  <td>{{coil.corenumber}}</td>
   <td>{{coil.length}}</td>
   <td><button class="btn btn-warning" (click)="Edit(coil)">Edit</button></td>
   <td><button class="btn btn-danger" (click)="DeleteCoil(coil)">Delete</button></td>
@@ -102,17 +96,14 @@
 
   <td><input type="text" class="form-control" [(ngModel)]="EditCoil.name" #coilname="ngModel" required /></td>
   <td>
-    <select class="form-select" [(ngModel)] ="EditCoil.type" #coiltype="ngModel" required>
-      <option *ngFor="let type of wiretypes">{{type}}</option>
-    </select>
-  </td>
+    <input class="form-contol" type="text" [(ngModel)] ="EditCoil.typeofsignal" #typeofsignal="ngModel" required></td>
   <td>
-    <select class="form-select" [(ngModel)]="EditCoil.corenumber" #coilcorenumber="ngModel" required>
+    <select class="form-select" [(ngModel)]="EditCoil.type" #coiltype="ngModel" required>
       <option *ngFor="let number of corenumbers">{{number}}</option>
     </select>
   </td>
   <td><input class="form-control" (ngModelChange)="CancelMinusEdit(coillength)" [ngModel]="EditCoil.length" #coillength="ngModel" required /></td>
-  <td><button class="btn btn-primary" (click)="PutCoil()" [disabled]="coilname.invalid||coiltype.invalid||coilcorenumber.invalid||coillength.invalid" >Save</button></td>
+  <td><button class="btn btn-primary" (click)="PutCoil()" [disabled]="coilname.invalid||coiltype.invalid||typeofsignal.invalid||coillength.invalid" >Save</button></td>
   <td><button class="btn btn-warning" (click)="Cancel()" >Cancel</button></td>
 
 </ng-template>

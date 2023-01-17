@@ -7,11 +7,11 @@ import { Coil } from '../components/models/coil';
 @Injectable()
 export class CoilService{
 
-  url: string = "http://localhost:3200/api/coils";
+  private url: string = "http://localhost:3200/api/coils";
 
   constructor(private client: HttpClient) { }
 
-  getCoils(): Observable<any> {
+  getCoils(): Observable<Coil[]> {
 
     const headers: HttpHeaders = new HttpHeaders().set("Content-Type", "application/json");
 
@@ -20,7 +20,7 @@ export class CoilService{
 
   }
 
-  getOneWire(id: string): Observable<any> {
+  getCoil(id: string): Observable<Coil> {
 
     const headers: HttpHeaders = new HttpHeaders().set("Content_Type", "application/json");
 

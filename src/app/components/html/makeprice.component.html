@@ -1,0 +1,60 @@
+<div class="container">
+  <h1>Make Prices</h1>
+  <form>
+    <div class="row">
+
+      <div class="col-5">
+        <label for="PriceName">name</label>
+        <input id="PriceName" type="text" class="form-control" [(ngModel)]="newPrice.name" name="priceName" />
+      </div>
+
+      <div class="col-5">
+        <label for="PriceCost">cost</label>
+        <input id="PriceCost" type="number" class="form-control" [(ngModel)]="newPrice.cost" name="priceCost" />
+      </div>
+    </div>
+
+    <div class="col-10">
+      <label for="ItemOfPrice">Item</label>
+      <select id="ItemOfPrice" class="form-select" [(ngModel)]="selectitem" (ngModelChange)="setItem()"  name="priceItem">
+        <option value=""></option>
+        <option *ngFor="let item of listOfItems">{{item.name}}-{{item.type}}</option>
+      </select>
+
+    </div>
+
+    <div class="row">
+      <div class="col-4">
+        <button (click)="postPrice()" [disabled]="!edit" class="btn btn-primary">Make Price</button>
+      </div>
+      <div class="col-4">
+        <button class="btn btn-warning">Reset</button>
+      </div>
+      <div class="col-4">
+        <button (click)="putPrice()" [disabled]="edit" class="btn btn-success">Edit Price</button>
+      </div>
+    </div>
+  </form>
+
+  <table class="mt-3 table table-striped table-danger table-hover text-center">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Cost</th>
+        <th>Item's name</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let price of prices;let i=index">
+        <td>{{price.name}}</td>
+        <td>{{price.cost}}</td>
+        <td>{{price?.itemofprice?.name}}</td>
+        <td><button class="btn btn-danger" (click)="deletePrice(price._id)">Delete</button></td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+
