@@ -25,6 +25,14 @@ export class ConnectorService {
 
   }
 
+  getConnectorByNameAndType(name: string, type: string): Observable<Connector> {
+
+    const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
+
+    return this.client.get<Connector>(this.url + `/getconnectorbynameandtype/${name}/${type}`, { headers: httpheaders });
+
+  }
+
   postConnector(connector: Connector): Observable<any> {
 
     const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });

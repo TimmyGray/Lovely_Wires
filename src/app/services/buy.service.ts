@@ -23,6 +23,7 @@ export class BuyService {
 
   }
 
+
   postBuy(buy: IBuy): Observable<IBuy> {
 
     const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });

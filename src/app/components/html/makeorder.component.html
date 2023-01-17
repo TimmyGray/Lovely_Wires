@@ -10,7 +10,6 @@
           <th>Client's email</th>
           <th>Status</th>
           <th></th>
-          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -19,33 +18,10 @@
           <td>{{ord.created}}</td>
           <td>{{ord.client.name}}</td>
           <td>{{ord.client.email}}</td>
-          <td *ngIf="!edit;">{{ord.status}}</td>
-          <td *ngIf="edit">
-            <select class="form-select">
-              <option value="">Сменить статус</option>
-              <option *ngFor="let status of stats">{{status}}</option>
-            </select>
+          <td>{{ord.status}}</td>
+          <td>
+            <button class="btn btn-danger">Delete</button>
           </td>
-          <ng-template *ngIf="!edit;else editorder">
-
-            <td>
-              <button class="btn btn-warning">Edit</button>
-            </td>
-            <td>
-              <button *ngIf="!edit" class="btn btn-danger">Delete</button>
-            </td>
-
-          </ng-template>
-          <ng-template #editorder>
-
-            <td>
-              <button class="btn btn-primary">Save</button>
-            </td>
-            <td>
-              <button *ngIf="!edit" class="btn btn-warning">Cancel</button>
-            </td>
-
-          </ng-template>
         </tr>
 
       </tbody>
@@ -61,13 +37,14 @@
           </div>
           <div class="modal-body">
 
-            <table class="table table-secondary">
+            <table class="table table-secondary table-striped">
               <thead>
                 <tr>
                   <th>Buy's name</th>
                   <th>Item</th>
                   <th>Cost</th>
                   <th>Count</th>
+                  <th>Available count</th>
                 </tr>
               </thead>
               <tbody>
@@ -76,13 +53,14 @@
                   <td>{{item.item}}</td>
                   <td>{{item.cost}}</td>
                   <td>{{item.count}}</td>
+                  <td><p [textContent]="checkAvailable(item)"></p></td>
                 </tr>
               </tbody>
             </table>
             <div>
               <label for="statusSelect">Order status</label>
               <select id="statusSelect" class="form-select" [(ngModel)]=tempstatus>
-                <option value="">Select status</option>
+                <option value="">Select status...</option>
                 <option *ngFor="let status of stats">{{status}}</option>
               </select>
             </div>
@@ -102,19 +80,4 @@
 
 </div>
 
-<!--<ng-template #noneditable let-orders>
-  <td>{{order.name}}</td>
-  <td>{{order.created}}</td>
-  <td>{{order.status}}</td>
-</ng-template>
 
-<ng-template #editable>
-  <td>{{order.name}}</td>
-  <td>{{order.created}}</td>
-  <td>
-    <select class="form-select">
-      <option value="">Сменить статус</option>
-      <option *ngFor="let status of stats">{{status}}</option>
-    </select>
-  </td>
-</ng-template>-->

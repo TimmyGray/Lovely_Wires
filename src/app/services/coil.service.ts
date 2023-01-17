@@ -22,9 +22,17 @@ export class CoilService{
 
   getCoil(id: string): Observable<Coil> {
 
-    const headers: HttpHeaders = new HttpHeaders().set("Content_Type", "application/json");
+    const headers: HttpHeaders = new HttpHeaders().set("Content-Type", "application/json");
 
     return this.client.get<Coil>(this.url + `/${id}`, { headers: headers });
+
+  }
+
+  getCoilByNameAndType(name: string, type: string): Observable<Coil> {
+
+    const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
+
+    return this.client.get<Coil>(this.url + `/getcoilbynameandtype/${name}/${type}`, { headers: httpheaders });
 
   }
 
