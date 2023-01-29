@@ -172,7 +172,7 @@ export class MakeBuyComponent implements OnInit {
 
   deleteBuy(id: string, e: Event) {
 
-    e.preventDefault();
+    e.stopPropagation();
     alert(e.currentTarget);
     this.buyserv.deleteBuy(id).subscribe((data) => {
 

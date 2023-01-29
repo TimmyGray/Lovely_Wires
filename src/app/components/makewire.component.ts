@@ -41,8 +41,8 @@ export class MakeWireComponent implements OnInit {
   wires: Wire[];
   coils: Coil[];
   connectors: Connector[];
-  editWire: Wire | null = null;
-  newWire: Wire | null = null;
+  editWire: Wire  = null;
+  newWire: Wire  = null;
   coilname: string = "";
   coillength: number = 0;
   firstconnector: string = "";
@@ -79,7 +79,7 @@ export class MakeWireComponent implements OnInit {
 
   private LoadWires() {
 
-    this.wireserv.getWires().subscribe((data: Array<Wire>) => {
+    this.wireserv.getWires().subscribe((data: Wire[]) => {
 
       this.wires = data;
 
@@ -89,7 +89,7 @@ export class MakeWireComponent implements OnInit {
 
   private LoadCoils() {
 
-    this.coilserv.getCoils().subscribe((data: Array<Coil>) => {
+    this.coilserv.getCoils().subscribe((data: Coil[]) => {
 
       this.coils = data;
 
@@ -99,7 +99,7 @@ export class MakeWireComponent implements OnInit {
 
   private LoadConnectors() {
 
-    this.conserv.getConnectors().subscribe((data: Array<Connector>) => {
+    this.conserv.getConnectors().subscribe((data: Connector[]) => {
 
       this.connectors = data;
 

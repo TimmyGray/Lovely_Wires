@@ -20,7 +20,7 @@
           <td>{{ord.client.email}}</td>
           <td><p [textContent]="statusToString(ord.status)"></p></td>
           <td>
-            <button class="btn btn-danger">Delete</button>
+            <button class="btn btn-danger" (click)="deleteOrder($event,ord._id)">Delete</button>
           </td>
         </tr>
 
@@ -28,17 +28,17 @@
     </table>
 
     <div class="modal fade" id="ordersBuys" aria-labelledby="modalLabel" aria-hidden="true" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content" style="display:inline-table" >
+      <div id="modal" class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-lg-down">
+        <div class="modal-content"  >
           <div class="modal-header">
             <h5 id="modalLabel">{{editorder.name}}</h5>
             <h6>{{editorder.client.name}}-{{editorder.client.email}}</h6>
-            <button type="button" data-bs-dismiss="modal" aria-label="close" (click)="cancelEdit()" class="btn-close"></button>
+            <button id="closeModal" type="button" data-bs-dismiss="modal" aria-label="close" (click)="cancelEdit()" class="btn-close"></button>
           </div>
           <div class="modal-body">
 
-            <table class="table table-secondary table-striped">
-              <thead>
+            <table class="table table-secondary table-striped text-center table-sm align-middle">
+              <thead class="table-dark">
                 <tr>
                   <th>Buy's name</th>
                   <th>Item</th>
@@ -55,7 +55,7 @@
                   <td>{{item.cost}}</td>
                   <td>{{item.count}}</td>
                   <td>{{templistofcounts[i]}}</td>
-                  <td><input type="checkbox" (click)="checkUncheck($event,i)"/></td>
+                  <td><input type="checkbox" (click)="checkUncheck($event,i)" [disabled]="(templistofcounts[i]-item.count)<0"/></td>
                 </tr>
               </tbody>
             </table>
@@ -77,7 +77,7 @@
             <div class="row">
 
               <button class="btn btn-secondary" data-bs-dismiss="modal" (click)="cancelEdit()">Close</button>
-              <button class="btn btn-successful" (click)="putOrder()" >Edit</button>
+              <button class="btn btn-sucsessful" (click)="putOrder()" >Edit</button>
 
             </div>
           </div>

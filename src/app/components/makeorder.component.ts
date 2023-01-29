@@ -31,6 +31,7 @@ export class MakeOrderComponent implements OnInit {
   listofbuys: IBuy[];
   templistofcounts: number[];
   tempstatus: string = "";
+  tempstatus2: number=0;
   accept: boolean[];
   comment: string = "";
 
@@ -93,6 +94,7 @@ export class MakeOrderComponent implements OnInit {
 
 
     this.editorder = curorder;
+    this.tempstatus2 = curorder.status;
     this.listofbuys = this.editorder.listofbuys;
     this.listofbuys.forEach(b => {
 
@@ -106,25 +108,58 @@ export class MakeOrderComponent implements OnInit {
 
   }
 
-  putOrder() {
+  async putOrder() {
 
     if (this.editorder._id != null && this.editorder._id != '' && this.tempstatus != '') {
 
+      if (this.tempstatus2 == 1 && OrderStatus[this.tempstatus] != 1 && OrderStatus[this.tempstatus] != 2) {
+
+        this.editorder.status = OrderStatus[this.tempstatus];
+
+        await this.orderserv.putOrder(this.editorder).toPromise().then(async (data: IBuy) => {
+
+          console.log(data);
+
+          for (var i = 0; i < this.listofbuys.length; i++) {
+
+            let buy: IBuy = Object.assign({}, this.listofbuys[i]);
+            buy.count = this.templistofcounts[i] + this.listofbuys[i].count;
+            await this.buyserv.putBuy(buy).toPromise().then((data: IBuy) => {
+
+              console.log(`buys after put method ${data.count}`)
+              this.templistofcounts[i] = data.count;
+
+            }).catch(e => {
+
+              console.log(e);
+
+            });
+
+          }
+
+        }).catch(e => {
+
+          console.log(e);
+
+        });
+
+      }
       if (this.accept.includes(false)) {
 
         if (this.tempstatus == this.stats[OrderStatus.canceled] && this.comment!="") {
 
           this.editorder.status = OrderStatus[this.tempstatus];
 
-          this.orderserv.putOrder(this.editorder).subscribe((data: Order) => {
+          await this.orderserv.putOrder(this.editorder).toPromise().then((data) => {
 
-            this.orders.find(o => o._id == data._id).status = data.status;
+            console.log(data);
 
-          }, (e) => {
+          }).catch(e => {
 
+            this.editorder.status = this.tempstatus2;
             console.log(e);
 
-          });
+          })
 
 
         }
@@ -139,19 +174,22 @@ export class MakeOrderComponent implements OnInit {
 
         this.editorder.status = OrderStatus[this.tempstatus];
 
-        this.orderserv.putOrder(this.editorder).subscribe((data: Order) => {
+        await this.orderserv.putOrder(this.editorder).toPromise().then(async (data) => {
 
-          this.orders.find(o => o._id == data._id).status = data.status;
+          console.log(data);
 
           for (var i = 0; i < this.listofbuys.length; i++) {
 
-            this.listofbuys[i].count = this.templistofcounts[i] - this.listofbuys[i].count;
+            let buy: IBuy = Object.assign({}, this.listofbuys[i]);
+            buy.count = this.templistofcounts[i] - this.listofbuys[i].count;
 
-            this.buyserv.putBuy(this.listofbuys[i]).subscribe((data: IBuy) => {
+            console.log(`Available count of buy:${buy.count}`);
 
-              console.log(data);
+            await this.buyserv.putBuy(buy).toPromise().then((data: IBuy) => {
 
-            }, (e) => {
+              console.log(`after putbuy method: ${data} `);
+
+            }).catch(e => {
 
               console.log(e);
 
@@ -159,14 +197,16 @@ export class MakeOrderComponent implements OnInit {
 
           }
 
-        }, (e) => {
 
+        }).catch(e => {
+
+          this.editorder.status = this.tempstatus2;
           console.log(e);
 
         });
 
-        this.cancelEdit();
 
+        document.getElementById("closeModal").click();
       }
 
     }
@@ -186,6 +226,7 @@ export class MakeOrderComponent implements OnInit {
     this.editorder = this.initOrder();
     this.listofbuys = new Array<IBuy>();
     this.comment = "";
+    this.tempstatus2 = 0;
 
   }
 
@@ -324,6 +365,28 @@ export class MakeOrderComponent implements OnInit {
 
 
     this.accept[i] = e.target.checked;
+    this.accept.forEach(a => {
+
+      console.log(a);
+
+    });
+  }
+
+  deleteOrder(e, id: string) {
+
+    e.stopPropagation();
+
+    this.orderserv.deleteOrder(id).subscribe((data: Order) => {
+
+      console.log(data);
+      let index: number = this.orders.findIndex(o => o._id == data._id);
+      this.orders.splice(index, 1);
+
+    }, (e) => {
+
+      console.log(e);
+
+    });
 
   }
 

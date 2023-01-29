@@ -23,11 +23,11 @@ export class MakeCoilComponent implements OnInit {
 
   EditCoil: Coil = null;
 
-  wiretypes: Array<string>;
+  wiretypes: string[];
 
-  corenumbers: Array<string>;
+  corenumbers: string[];
 
-  coils: Array<Coil>;
+  coils: Coil[];
 
 
   status: string = "";
@@ -42,7 +42,7 @@ export class MakeCoilComponent implements OnInit {
 
   GetAllCoils() {
 
-    this.service.getCoils().subscribe((data: Array<Coil>) => {
+    this.service.getCoils().subscribe((data: Coil[]) => {
 
       this.coils = data;
 
