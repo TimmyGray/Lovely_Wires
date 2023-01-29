@@ -18,7 +18,7 @@
           <td>{{ord.created}}</td>
           <td>{{ord.client.name}}</td>
           <td>{{ord.client.email}}</td>
-          <td>{{ord.status}}</td>
+          <td><p [textContent]="statusToString(ord.status)"></p></td>
           <td>
             <button class="btn btn-danger">Delete</button>
           </td>
@@ -29,7 +29,7 @@
 
     <div class="modal fade" id="ordersBuys" aria-labelledby="modalLabel" aria-hidden="true" tabindex="-1">
       <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" style="display:inline-table" >
           <div class="modal-header">
             <h5 id="modalLabel">{{editorder.name}}</h5>
             <h6>{{editorder.client.name}}-{{editorder.client.email}}</h6>
@@ -45,15 +45,17 @@
                   <th>Cost</th>
                   <th>Count</th>
                   <th>Available count</th>
+                  <th>Accept buy</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let item of listofbuys">
+                <tr *ngFor="let item of listofbuys; let i=index">
                   <td>{{item.name}}</td>
                   <td>{{item.item}}</td>
                   <td>{{item.cost}}</td>
                   <td>{{item.count}}</td>
-                  <td></td>
+                  <td>{{templistofcounts[i]}}</td>
+                  <td><input type="checkbox" (click)="checkUncheck($event,i)"/></td>
                 </tr>
               </tbody>
             </table>
@@ -64,7 +66,13 @@
                 <option *ngFor="let status of stats">{{status}}</option>
               </select>
             </div>
+            <div>
+              <textarea class="form-control" placeholder="Comment for client (if the order canceled, for example)" [(ngModel)]="comment" name="comment">
+
+              </textarea>
+            </div>
           </div>
+
           <div class="modal-footer">
             <div class="row">
 

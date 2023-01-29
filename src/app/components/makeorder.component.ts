@@ -12,6 +12,8 @@ import { BuyService } from '../services/buy.service';
 import { ConnectorService } from '../services/connector.service';
 import { CoilService } from '../services/coil.service';
 import { Client } from './models/client';
+import { arrayBuffer } from 'node:stream/consumers';
+import { escape } from 'node:querystring';
 
 @Component({
 
@@ -27,7 +29,10 @@ export class MakeOrderComponent implements OnInit {
   stats: string[];
   editorder: Order;
   listofbuys: IBuy[];
+  templistofcounts: number[];
   tempstatus: string = "";
+  accept: boolean[];
+  comment: string = "";
 
   constructor(
     private orderserv: OrderService,
@@ -39,8 +44,9 @@ export class MakeOrderComponent implements OnInit {
     this.orders = new Array<Order>();
     this.stats = statuses;
     this.listofbuys = new Array<IBuy>();
+    this.templistofcounts = new Array<number>();
     this.editorder = this.initOrder();
-
+    this.accept = new Array<boolean>();
   }
 
   ngOnInit(): void {
@@ -83,35 +89,85 @@ export class MakeOrderComponent implements OnInit {
   }
   
 
-  startEdit(curorder: Order) {
+  async startEdit(curorder: Order) {
 
 
     this.editorder = curorder;
     this.listofbuys = this.editorder.listofbuys;
+    this.listofbuys.forEach(b => {
+
+      this.templistofcounts.push(b.count);
+      this.accept.push(false);
+
+    });
+
+    await this.checkAvailable();
     
 
   }
 
   putOrder() {
 
-    if (this.editorder._id != null && this.editorder._id != '' && this.tempstatus!='') {
+    if (this.editorder._id != null && this.editorder._id != '' && this.tempstatus != '') {
 
-      this.editorder.status = OrderStatus[this.tempstatus];
+      if (this.accept.includes(false)) {
 
-      this.orderserv.putOrder(this.editorder as Order).subscribe((data: Order) => {
+        if (this.tempstatus == this.stats[OrderStatus.canceled] && this.comment!="") {
 
-        this.orders.find(o => o._id == data._id).status = data.status;
+          this.editorder.status = OrderStatus[this.tempstatus];
 
-        console.log(data.status);
-        console.log(this.orders.find(o => o._id == data._id).status);
+          this.orderserv.putOrder(this.editorder).subscribe((data: Order) => {
 
-      }, (e) => {
+            this.orders.find(o => o._id == data._id).status = data.status;
 
-        return console.log(e);
+          }, (e) => {
 
-      });
+            console.log(e);
 
-      this.cancelEdit();
+          });
+
+
+        }
+        else {
+
+          console.log("Не все позиции утверждены или не написан комментарий к отказу");
+
+        }
+
+      }
+      else {
+
+        this.editorder.status = OrderStatus[this.tempstatus];
+
+        this.orderserv.putOrder(this.editorder).subscribe((data: Order) => {
+
+          this.orders.find(o => o._id == data._id).status = data.status;
+
+          for (var i = 0; i < this.listofbuys.length; i++) {
+
+            this.listofbuys[i].count = this.templistofcounts[i] - this.listofbuys[i].count;
+
+            this.buyserv.putBuy(this.listofbuys[i]).subscribe((data: IBuy) => {
+
+              console.log(data);
+
+            }, (e) => {
+
+              console.log(e);
+
+            });
+
+          }
+
+        }, (e) => {
+
+          console.log(e);
+
+        });
+
+        this.cancelEdit();
+
+      }
 
     }
     else {
@@ -120,13 +176,16 @@ export class MakeOrderComponent implements OnInit {
 
     }
 
+  
+
   }
 
   cancelEdit() {
 
     this.tempstatus = "";
-    this.editorder = null;
+    this.editorder = this.initOrder();
     this.listofbuys = new Array<IBuy>();
+    this.comment = "";
 
   }
 
@@ -207,26 +266,38 @@ export class MakeOrderComponent implements OnInit {
   //  return field;
   //}
 
-  checkAvailable(orderbuy: IBuy): number | string {
+  async checkAvailable(){
+
+    for (var i = 0; i < this.listofbuys.length; i++) {
+
+      await this.buyserv.getBuy(this.listofbuys[i]._id).toPromise()
+        .then((data: IBuy) => {
+
+          this.templistofcounts[i] = data.count
+
+        })
+        .catch((e) => {
+
+          console.log(e);
+          this.templistofcounts[i] = -999;
+
+      });
+
+    }
+
+  }
+
+  putBuys(buy: IBuy) {
+
+    this.buyserv.putBuy(buy).subscribe((data: IBuy) => {
 
 
-
-    this.buyserv.getBuy(orderbuy._id).subscribe((data: IBuy) => {
-
-      let buy: IBuy = data;
-
-      let difference: number = buy.count - orderbuy.count; 
-
-      return difference;
 
     }, (e) => {
 
       console.log(e);
 
     });
-
-    return 'Not Available';
-
 
   }
 
@@ -240,6 +311,19 @@ export class MakeOrderComponent implements OnInit {
       new Array<IBuy>(),
       OrderStatus.under_consideration
     );
+
+  }
+
+  statusToString(numb: number): string {
+
+    return OrderStatus[numb];
+
+  }
+
+  checkUncheck(e, i: number) {
+
+
+    this.accept[i] = e.target.checked;
 
   }
 
