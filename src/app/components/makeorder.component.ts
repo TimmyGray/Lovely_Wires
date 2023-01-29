@@ -11,12 +11,13 @@ import { WireService } from '../services/wire.service';
 import { BuyService } from '../services/buy.service';
 import { ConnectorService } from '../services/connector.service';
 import { CoilService } from '../services/coil.service';
+import { Client } from './models/client';
 
 @Component({
 
   selector: 'make-order',
   templateUrl: `./html/makeorder.component.html`,
-  providers: [OrderService, WireService,BuyService]
+  providers: [OrderService, WireService, BuyService, CoilService, ConnectorService]
 
 })
 
@@ -38,12 +39,14 @@ export class MakeOrderComponent implements OnInit {
     this.orders = new Array<Order>();
     this.stats = statuses;
     this.listofbuys = new Array<IBuy>();
+    this.editorder = this.initOrder();
 
   }
 
   ngOnInit(): void {
 
     this.getOrders();
+    //this.getBuys();
 
   }
 
@@ -51,6 +54,7 @@ export class MakeOrderComponent implements OnInit {
     
     this.orderserv.getOrders().subscribe((data: Order[]) => {
 
+      console.log(data);
       this.orders = data;
 
     }, (e) => {
@@ -63,6 +67,20 @@ export class MakeOrderComponent implements OnInit {
 
   }
 
+  getBuys() {
+
+    this.buyserv.getBuys().subscribe((data: IBuy[]) => {
+
+      console.log(data);
+      this.listofbuys = data;
+
+    }, (e) => {
+
+      console.log(e);
+
+    });
+
+  }
   
 
   startEdit(curorder: Order) {
@@ -189,7 +207,8 @@ export class MakeOrderComponent implements OnInit {
   //  return field;
   //}
 
-  checkAvailabale(orderbuy: IBuy): number | string {
+  checkAvailable(orderbuy: IBuy): number | string {
+
 
 
     this.buyserv.getBuy(orderbuy._id).subscribe((data: IBuy) => {
@@ -208,6 +227,19 @@ export class MakeOrderComponent implements OnInit {
 
     return 'Not Available';
 
+
+  }
+
+  initOrder():Order {
+
+    return new Order(
+      "",
+      "",
+      new Client("", "", ""),
+      new Date(),
+      new Array<IBuy>(),
+      OrderStatus.under_consideration
+    );
 
   }
 

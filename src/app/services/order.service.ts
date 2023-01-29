@@ -7,11 +7,13 @@ import { Observable } from 'rxjs';
 export class OrderService {
 
   private url: string = 'http://localhost:3200/api/orders';
+
   constructor(private httpclient: HttpClient) { }
-  getOrders(): Observable<Array<Order>>{
+
+  getOrders(): Observable<Order[]>{
 
     const httpheaders: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.httpclient.get<Array<Order>>(this.url, { observe: 'body', headers: httpheaders, responseType: 'json' });
+    return this.httpclient.get<Order[]>(this.url, { observe: 'body', headers: httpheaders, responseType: 'json' });
 
   }
 

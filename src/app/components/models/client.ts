@@ -2,7 +2,7 @@ export class Client {
 
   constructor(
 
-    public _id: number,
+    public _id: string,
     public name: string,
     public email: string) {
 

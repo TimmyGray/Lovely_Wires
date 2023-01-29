@@ -279,7 +279,7 @@ export class MakeBuyComponent implements OnInit {
     console.log(`coilconprice:${this.coilprice.cost}`);
     console.log(this.selectedfirstcon);
     this.changeCost(true);
-    this.newbuy.item = `${this.selectedfirstcon.name},${this.selectedfirstcon.type};${this.selectedsecondcon.name},${this.selectedsecondcon.type};${this.selectedcoil.name},${this.selectedcoil.type}`;
+    this.newbuy.item = `${this.selectedfirstcon.name},${this.selectedfirstcon.type};${this.selectedsecondcon.name},${this.selectedsecondcon.type};${this.selectedcoil.name},${this.selectedcoil.type};${this.selectedwire.length}`;
 
     console.log(this.newbuy.item);
 

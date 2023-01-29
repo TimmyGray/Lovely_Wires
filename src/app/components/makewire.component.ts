@@ -38,38 +38,23 @@ export class MakeWireComponent implements OnInit {
 
 
 
-  wires: Array<Wire>;
-
-  coils: Array<Coil>;
-
-  connectors: Array<Connector>;
-
+  wires: Wire[];
+  coils: Coil[];
+  connectors: Connector[];
   editWire: Wire | null = null;
-
   newWire: Wire | null = null;
-
   coilname: string = "";
-
   coillength: number = 0;
-
   firstconnector: string = "";
-
   secondconnector: string = "";
-
   firstcon: Connector;
-
   secondcon: Connector;
-
   coil: Coil;
-
   availablelength: number = 0;
-
   status: string;
-
   orderfirst: number = 1;
   ordersecond: number = 1;
   orderlength: number = 1;
-
   percent: number;
 
   ngOnInit() {
@@ -83,17 +68,11 @@ export class MakeWireComponent implements OnInit {
   constructor(private wireserv: WireService, private coilserv: CoilService, private conserv: ConnectorService) {
 
     this.wires = new Array<Wire>();
-
     this.coils = new Array<Coil>();
-
     this.coil = new Coil("", "", "", "", 0);
-
     this.newWire = new Wire("", "", "", "", "", 0);
-
     this.firstcon = new Connector("", "", "", 0);
-
     this.secondcon = new Connector("", "", "", 0);
-
     this.connectors = new Array<Connector>();
 
   }
