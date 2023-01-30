@@ -72,6 +72,7 @@ export class MakeBuyComponent implements OnInit {
     this.buyserv.getBuys().subscribe((data) => {
 
       this.buys = data;
+      console.log(this.buys);
 
     }, (e) => {
 
@@ -86,6 +87,7 @@ export class MakeBuyComponent implements OnInit {
     this.wireserv.getWires().subscribe((data) => {
 
       this.wires = data;
+      console.log(this.wires);
 
     }, (e) => {
 
@@ -100,6 +102,7 @@ export class MakeBuyComponent implements OnInit {
     this.priceserv.getPrices().subscribe((data) => {
 
       this.prices = data;
+      console.log(this.prices);
 
     }, (e) => {
 
@@ -110,7 +113,9 @@ export class MakeBuyComponent implements OnInit {
   }
 
   getBuy(id: string): IBuy | null {
+
     let tempbuy: IBuy;
+
     this.buyserv.getBuy(id).subscribe((data: IBuy) => {
 
       console.log(data);
@@ -141,24 +146,29 @@ export class MakeBuyComponent implements OnInit {
         console.log(data);
 
         this.buys.push(data);
-       
 
       }, (e) => {
 
-        return console.log(e);
+        console.log(e);
 
       });
 
+    }
+    else {
 
+      alert("Заполните все необходимые поля");
+      console.log("Заполните все необходимые поля");
 
     }
 
   }
 
   putBuy() {
-    console.log(this.editbuy);
-    this.buyserv.putBuy(this.editbuy as IBuy).subscribe((data) => {
 
+    console.log(this.editbuy);
+    this.buyserv.putBuy(this.editbuy as IBuy).subscribe((data: IBuy) => {
+
+      this.editbuy = data;
       console.log(data);
 
     },(e) => {
@@ -173,12 +183,12 @@ export class MakeBuyComponent implements OnInit {
   deleteBuy(id: string, e: Event) {
 
     e.stopPropagation();
-    alert(e.currentTarget);
+
+    document.getElementById("cancelEdit").click();
+
     this.buyserv.deleteBuy(id).subscribe((data) => {
 
-      
       console.log(data);
-
 
     }, (e) => {
 

@@ -31,10 +31,10 @@ export class BuyService {
 
   }
 
-  putBuy(buy: IBuy): Observable<any> {
+  putBuy(buy: IBuy): Observable<IBuy> {
 
     const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
-    return this.httpclient.put<any>(this.url + '/putbuy', JSON.stringify(buy), { headers: httpheaders });
+    return this.httpclient.put<IBuy>(this.url + '/putbuy', JSON.stringify(buy), { headers: httpheaders });
 
   }
 

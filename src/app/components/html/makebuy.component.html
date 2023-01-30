@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container text-center">
   <h5>Buys Manager</h5>
   <div class="container">
     <form>
@@ -16,6 +16,7 @@
 
         <div class="col-5">
           <select
+                 
                   class="form-select"
                   [(ngModel)]="selectedwire"
                   (ngModelChange)="selectItem()"
@@ -38,8 +39,10 @@
 
         </div>
         <div class="col-4">
-
+          <label for="buyCount">Buy's count</label>
           <input
+                 id="buyCount"
+                 placeholder="0"
                  class="form-control"
                  type="number"
                  [(ngModel)]="newbuy.count"
@@ -52,6 +55,7 @@
       <div class="container">
 
         <textarea
+                  placeholder="Buy description"
                   class="form-control"
                   [(ngModel)]="newbuy.description"
                   rows="5"
@@ -129,7 +133,9 @@
             <form>
               <div class="row">
                 <div class="col-5">
+                  <label for="editName">Change buy's name</label>
                   <input
+                         id="editName"
                          type="text"
                          class="form-control"
                          placeholder="Change name"
@@ -138,18 +144,21 @@
                   
                 </div>
                 <div class="col-5">
+                  <label for="editCount">Change buy's count</label>
                   <input
+                         id="editCount"
                          type="number"
                          class="form-control"
                          placeholder="Change count"
                          [(ngModel)]="editbuy.count"
                          (ngModelChange)="changeCost(false)"
                          name="ngEditBuyCount"/>
-                  <p>{{editbuy.cost}}</p>
+                  <p>Buy's price{{editbuy.cost}}</p>
                 </div>
               </div>
               <div class="container">
                 <textarea
+                          placeholder="Change description"
                           class="form-control"
                           rows="5"
                           [(ngModel)]="editbuy.description"
@@ -160,7 +169,7 @@
           <div class="modal-footer">
             <div class="row">
               <div class="col-5">
-                <button class="btn btn-secondary btn-secondary" data-bs-dismiss="modal" (click)="cancelEdit()" >Cancel</button>
+                <button id="cancelEdit" class="btn btn-secondary btn-secondary" data-bs-dismiss="modal" (click)="cancelEdit()" >Cancel</button>
               </div>
               <div class="col-5">
                 <button class="btn btn-success" data-bs-dismiss="modal" (click)="saveEdit()">Save</button>

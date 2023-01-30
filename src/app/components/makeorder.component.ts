@@ -374,7 +374,6 @@ export class MakeOrderComponent implements OnInit {
 
   deleteOrder(e, id: string) {
 
-    e.stopPropagation();
 
     this.orderserv.deleteOrder(id).subscribe((data: Order) => {
 
