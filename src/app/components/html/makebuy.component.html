@@ -1,23 +1,20 @@
 <div class="container text-center">
   <h5>Buys Manager</h5>
-  <div class="container">
-    <form>
+  <div class="container mb-3">
+    <form enctype="multipart/form-data" >
 
       <div class="row">
 
         <div class="col-5">
-          <input
-                 type="text"
+          <input type="text"
                  class="form-control"
                  placeholder="Buy's name"
                  [(ngModel)]="newbuy.name"
-                 name="ngNewBuyName"/>
+                 name="ngNewBuyName" />
         </div>
 
         <div class="col-5">
-          <select
-                 
-                  class="form-select"
+          <select class="form-select"
                   [(ngModel)]="selectedwire"
                   (ngModelChange)="selectItem()"
                   name="ngNewBuyItem">
@@ -40,26 +37,32 @@
         </div>
         <div class="col-4">
           <label for="buyCount">Buy's count</label>
-          <input
-                 id="buyCount"
+          <input id="buyCount"
                  placeholder="0"
                  class="form-control"
                  type="number"
                  [(ngModel)]="newbuy.count"
                  (ngModelChange)="changeCost(true)"
-                 name="ngNewBuyCount"/>
+                 name="ngNewBuyCount" />
 
         </div>
       </div>
 
-      <div class="container">
+      <div class="container mb-3">
 
-        <textarea
-                  placeholder="Buy description"
+        <textarea placeholder="Buy description"
                   class="form-control"
                   [(ngModel)]="newbuy.description"
                   rows="5"
                   name="ngNewBuyDescriprion"></textarea>
+
+      </div>
+
+      <div class="mb-3">
+
+        <label for="loadimage">Upload image for buy</label>
+        <input type="file" class="form-control" id="loadimage" name="imagedata"/>
+
 
       </div>
 
@@ -134,36 +137,35 @@
               <div class="row">
                 <div class="col-5">
                   <label for="editName">Change buy's name</label>
-                  <input
-                         id="editName"
+                  <input id="editName"
                          type="text"
                          class="form-control"
                          placeholder="Change name"
                          [(ngModel)]="editbuy.name"
-                         name="ngEditBuyName"/>
-                  
+                         name="ngEditBuyName" />
+
                 </div>
                 <div class="col-5">
                   <label for="editCount">Change buy's count</label>
-                  <input
-                         id="editCount"
+                  <input id="editCount"
                          type="number"
                          class="form-control"
                          placeholder="Change count"
                          [(ngModel)]="editbuy.count"
                          (ngModelChange)="changeCost(false)"
-                         name="ngEditBuyCount"/>
+                         name="ngEditBuyCount" />
                   <p>Buy's price{{editbuy.cost}}</p>
                 </div>
               </div>
               <div class="container">
-                <textarea
-                          placeholder="Change description"
+                <textarea placeholder="Change description"
                           class="form-control"
                           rows="5"
                           [(ngModel)]="editbuy.description"
                           name="ngEditBuyDescription"></textarea>
+
               </div>
+
             </form>
           </div>
           <div class="modal-footer">
