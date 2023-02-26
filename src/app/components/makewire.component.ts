@@ -13,9 +13,6 @@ import { ConnectorService } from '../services/connector.service';
   styleUrls: ['../styles/my-styles.css'],
   providers: [WireService, CoilService, ConnectorService]
 })
-
-
-
 export class MakeWireComponent implements OnInit {
 
   @ViewChild('readonlytemp', { static: false })
@@ -65,7 +62,10 @@ export class MakeWireComponent implements OnInit {
 
   }
 
-  constructor(private wireserv: WireService, private coilserv: CoilService, private conserv: ConnectorService) {
+  constructor(
+    private wireserv: WireService,
+    private coilserv: CoilService,
+    private conserv: ConnectorService) {
 
     this.wires = new Array<Wire>();
     this.coils = new Array<Coil>();

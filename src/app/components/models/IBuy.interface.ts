@@ -1,3 +1,5 @@
+import { IImage } from "./IImage.interface";
+
 export interface IBuy {
   _id: string;
   name: string;
@@ -5,4 +7,5 @@ export interface IBuy {
   cost: number;
   item: string;
   count: number;
+  image: IImage;
 }

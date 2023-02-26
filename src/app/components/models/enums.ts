@@ -96,3 +96,11 @@ for (var i = 0; ;i++) {
   statuses.push(status);
 
 }
+
+export enum cableComponent {
+
+  firstcon,
+  secondcon,
+  coil
+
+}

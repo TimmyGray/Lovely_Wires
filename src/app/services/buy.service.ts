@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { IBuy } from '../components/models/IBuy.interface';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { IImage } from '../components/models/IImage.interface';
 
 @Injectable()
 export class BuyService {
@@ -23,6 +24,15 @@ export class BuyService {
 
   }
 
+  postImage(img: File): Observable<any> {
+
+    let formdata = new FormData();
+    formdata.append("imagedata", img, img.name);
+
+    const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "multipart/form-data; boundary = AaB03x " });
+    return this.httpclient.post<any>(this.url + '/postimg', formdata);
+
+  }
 
   postBuy(buy: IBuy): Observable<IBuy> {
 
@@ -38,10 +48,10 @@ export class BuyService {
 
   }
 
-  deleteBuy(id: string): Observable<any> {
+  deleteBuy(id: string,imgid:string): Observable<any> {
 
     const httheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
-    return this.httpclient.delete<any>(this.url + `/deletebuy/${id}`, { observe: "body", headers: httheaders, responseType: "json" });
+    return this.httpclient.delete<any>(this.url + `/deletebuy/${id}/${imgid}`, { observe: "body", headers: httheaders, responseType: "json" });
   }
 
 }

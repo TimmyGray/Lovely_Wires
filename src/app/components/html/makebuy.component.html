@@ -14,11 +14,11 @@
         </div>
 
         <div class="col-5">
+          <label for="selectItem" class="text-primary">Select wire</label>
           <select class="form-select"
                   [(ngModel)]="selectedwire"
-                  (ngModelChange)="selectItem()"
-                  name="ngNewBuyItem">
-            <option value="">Select item...</option>
+                  name="ngNewBuyItem"
+                  id="selectItem">
             <option [ngValue]="wire" *ngFor="let wire of wires">{{wire.name}}</option>
           </select>
         </div>
@@ -28,6 +28,7 @@
       <div class="row">
 
         <div class="col-6">
+
           <h5>First connector:{{selectedfirstcon.name}},{{selectedfirstcon.type}}:{{firstconprice.cost}}$</h5>
           <h5>Second connector:{{selectedsecondcon.name}},{{selectedsecondcon.type}}:{{secondconprice.cost}}$</h5>
           <h5>Coil:{{selectedcoil.name}},{{selectedcoil.type}}:{{coilprice.cost}}$</h5>
@@ -61,22 +62,32 @@
       <div class="mb-3">
 
         <label for="loadimage">Upload image for buy</label>
-        <input type="file" class="form-control" id="loadimage" name="imagedata"/>
+        <input type="file"
+               class="form-control"
+               id="loadimage"
+               name="imagedata"
+               #imagedata />
+        <img class="img-thumbnail rouded mx-auto d-block" #img />
 
-
+        <div [textContent]="(upload|async)">
+        </div>
       </div>
 
       <div class="row">
 
         <div class="col-5">
 
-          <button class="btn btn-secondary" (click)="resetBuy()">Reset</button>
+          <button class="btn btn-secondary"  name="resetbut" #resetbut>Reset</button>
 
         </div>
 
         <div class="col-5">
 
-          <button class="btn btn-primary" (click)="postBuy()">Make buy</button>
+          <button
+                  class="btn btn-primary"
+                  
+                  name="submitbut"
+                  #submitbut>Make buy</button>
 
         </div>
       </div>
@@ -109,7 +120,7 @@
           <td>{{buy.item}}</td>
           <td>{{buy.cost}}</td>
           <td>{{buy.count}}</td>
-          <td><button class="btn btn-danger" (click)="deleteBuy(buy._id,$event)">Delete</button></td>
+          <td><button class="btn btn-danger" (click)="deleteBuy(buy,$event)" #deleteBut>Delete</button></td>
 
         </tr>
       </tbody>
@@ -171,7 +182,10 @@
           <div class="modal-footer">
             <div class="row">
               <div class="col-5">
-                <button id="cancelEdit" class="btn btn-secondary btn-secondary" data-bs-dismiss="modal" (click)="cancelEdit()" >Cancel</button>
+                <button class="btn btn-secondary btn-secondary"
+                        data-bs-dismiss="modal"
+                        (click)="cancelEdit()"
+                        #cancelBut>Cancel</button>
               </div>
               <div class="col-5">
                 <button class="btn btn-success" data-bs-dismiss="modal" (click)="saveEdit()">Save</button>
