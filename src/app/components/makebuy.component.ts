@@ -11,10 +11,11 @@ import { Price } from './models/price';
 import { Connector } from './models/connector';
 import { Coil } from './models/coil';
 import { Observable, fromEvent, Subscription, Subject, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, exhaust, exhaustMap, filter, map, switchMap, takeUntil, mapTo, catchError } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, exhaust, exhaustMap, filter, map, switchMap, takeUntil, mapTo, catchError, find } from 'rxjs/operators';
 import { IImage } from './models/IImage.interface';
 import { cableComponent } from './models/enums';
 import { IItem } from './models/IItem.interface';
+import { Console } from 'node:console';
 
 @Component({
 
@@ -44,8 +45,24 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('cancelBut', { static: false })
   cancelBut: ElementRef;
 
+  @ViewChild('editImage', { static: false })
+  editImage: ElementRef;
+
+  @ViewChild('editImageInput', { static: false })
+  editImageInput: ElementRef;
+
+  @ViewChild('editBuyBt', { static: false })
+  editBuyBt: ElementRef;
+
+  @ViewChild('closeEditBut', { static: false })
+  closeEditBut: ElementRef;
+
   upload: Observable<any>;
   selectedwireobs$: Observable<any>;
+  editImage$: Subscription;
+  inputImageChange: Observable<any>;
+  editBuy$: Subscription;
+  
 
   buys: IBuy[];
   wires: Wire[];
@@ -61,7 +78,7 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
   secondconprice: Price;
   coilprice: Price;
   tempcost: number;
-  image: any;
+  image: File;
   selectoritem: any;  
 
   constructor(
@@ -97,62 +114,20 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
 
+    this.editBuy$.unsubscribe();
+    this.editImage$.unsubscribe();
 
   }
 
   ngAfterViewInit() {
-    
-    this.upload = fromEvent(this.fileInput, 'change').pipe(
 
-      map(() => this.fileInput.files[0]),
+    this.upload = this.inputObs(this.fileInput, this.imgFile).pipe(
 
-      filter(file => file.type == `image/png` || file.type == `image/jpeg` || file.type == `image/jpg` && !!file),
-
-      map((value) => { return this.displayImage(value); }),
-
-      exhaustMap(() => fromEvent(this.submitBut, 'click').pipe(
-
-        map(() => { return this.validateBuy(true); })
-
-      )),
-
-      filter(value => value == true),
-
-      exhaustMap(() => this.buyserv.postImage(this.image).pipe(
-
-        catchError((e) => of(e).pipe(
-
-          map(() => { console.error(e); }),
-          map(() => { return null; })
-
-        )),
-
-      )),
-
-      filter(file => file != null),
-
-      map((value) => { return this.addImageToBuy(value, false); }),
-
-      exhaustMap((value) => this.buyserv.postBuy(value).pipe(
-
-        
-        catchError((e) => of(e).pipe(
-
-          map((value) => {
-            console.error(value);
-            alert(value);
-          }),
-          map(() => { return null; })
-
-        ))
-
-      )),
-
-      filter(value => value != null),
-      map(value => { this.buys.push(value); }),
-      mapTo("Upload complete!")
+      exhaustMap((value) => this.submitPostObs(this.submitBut, this.newbuy, value)),
+      mapTo('Upload Complete')
 
     );
+
 
     this.selectedwireobs$ = fromEvent(this.selectoritem, 'change').pipe(
 
@@ -258,6 +233,13 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.selectedwireobs$.subscribe();
 
+    this.editImage$ = this.inputObs(this.editInputButton, this.editImageFile).subscribe();
+    
+    this.editBuy$ = this.submitPutObs(this.editBuyButton, this.editbuy, this.image).subscribe(data => {
+
+      this.changeBuyAfterPut(data);
+      this.closeEditBut.nativeElement.click();
+    });
   }
 
   getBuys() {
@@ -328,6 +310,161 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
+  private inputObs(inputelement: HTMLInputElement, imageelement: HTMLImageElement): Observable<File> {
+
+    console.log('inputobs');
+    return fromEvent(inputelement, 'change').pipe(
+
+      map(() => inputelement.files[0]),
+      filter(file => file.type == `image/png` || file.type == `image/jpeg` || file.type == `image/jpg` && !!file),
+      map((value) => this.displayImage(value, imageelement))
+
+      );
+
+  }
+
+  private submitPostObs(submitbut: HTMLButtonElement, buy: IBuy, img: File): Observable<any> {
+
+    console.log('submitpostobs');
+    return fromEvent(submitbut, 'click').pipe(
+
+      map(() => this.validateBuy(buy)),
+      filter(value => value == true),
+      exhaustMap(() => this.postImgObs(img)),
+      filter(value => value != null),
+      map(value => this.addImageToBuy(value, buy)),
+      exhaustMap(value => this.postBuyObs(value)),
+      filter(value => value != null),
+      map(value => this.getBuys()),
+      map(() => {
+        this.fullComponentReset();
+        this.fullComponentPriceReset();
+        this.fileInput.value = '';
+        this.imgFile.src = "";
+      })
+      
+    );
+
+  }
+
+  private submitPutObs(submit: HTMLButtonElement, buy: IBuy, img: File): Observable<IBuy> {
+
+    console.log('submitputobs');
+    return fromEvent(submit, 'click').pipe(
+      map(() => { console.log(this.editbuy); }),
+      map(() => this.validateBuy(this.editbuy)),
+      filter(value => value == true),
+      exhaustMap(() => this.checkToPutImage(this.image, this.editbuy)),
+      exhaustMap(() => this.putBuyobs(this.editbuy)),
+      filter(value => value != null)
+
+
+    );
+
+  }
+
+  private postImgObs(img: File): Observable<IImage> {
+
+    console.log('postimgobs');
+    return this.buyserv.postImage(img).pipe(
+
+      catchError(e => of(e).pipe(
+
+        map(e => {
+          console.error(e);
+          alert(e);
+          return null;
+        })
+
+      ))
+
+     );
+
+  }
+
+  private putImgObs(img: File, buy: IBuy): Observable<IImage> {
+
+    console.log('putimgobs');
+    if (img == null) {
+      return null;
+    }
+    return this.buyserv.putImage(img, buy.image._id).pipe(
+
+      catchError(e => of(e).pipe(
+
+        map(e => {
+
+          console.error(e);
+          alert(e);
+          return null;
+
+        })
+
+      ))
+
+    );
+
+  }
+
+  private putBuyobs(buy: IBuy): Observable<IBuy> {
+
+    console.log('putbuyobs');
+    return this.buyserv.putBuy(buy).pipe(
+
+      catchError(e => of(e).pipe(
+
+        map(e => {
+
+          console.error(e);
+          alert(e);
+          return null;
+
+        })
+
+      ))
+
+    );
+
+  }
+
+  private postBuyObs(buy: IBuy): Observable<IBuy> {
+
+    console.log('postbuyobs');
+    return this.buyserv.postBuy(buy).pipe(
+
+      catchError(e => of(e).pipe(
+
+        map(e => {
+          console.error(e);
+          alert(e);
+          return null;
+        })
+
+      ))
+
+    );
+
+  }
+
+  private checkToPutImage(img: File, buy: IBuy): Observable<any> {
+
+    if (img != null) {
+
+      return this.putImgObs(img, buy).pipe(
+
+
+        filter(value => value != null),
+        map(value => this.addImageToBuy(value, this.editbuy))
+
+      );
+
+    }
+
+    return of(console.log('The image stay the same'));
+
+
+  }
+
   private get fileInput(): HTMLInputElement {
 
     return this.input.nativeElement;
@@ -340,7 +477,7 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-  private get submitBut(): HTMLElement {
+  private get submitBut(): HTMLButtonElement {
 
     return this.submitbut.nativeElement;
 
@@ -361,6 +498,24 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
   private get cancelButton(): HTMLButtonElement {
 
     return this.cancelBut.nativeElement;
+
+  }
+
+  private get editInputButton(): HTMLInputElement {
+
+    return this.editImageInput.nativeElement;
+
+  }
+
+  private get editImageFile(): HTMLImageElement {
+
+    return this.editImage.nativeElement;
+
+  }
+
+  private get editBuyButton(): HTMLButtonElement {
+
+    return this.editBuyBt.nativeElement;
 
   }
 
@@ -403,23 +558,6 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-  putBuy() {
-
-    console.log(this.editbuy);
-    this.buyserv.putBuy(this.editbuy as IBuy).subscribe((data: IBuy) => {
-
-      this.editbuy = data;
-      console.log(data);
-
-    },(e) => {
-
-      console.log(e);
-
-    });
-
-    
-  }
-
   deleteBuy(buy: IBuy, e: Event) {
 
     e.stopPropagation();
@@ -448,7 +586,31 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
   editBuy(buy: IBuy) {
 
-    alert(buy.image.name);
+    this.editImageFile.src = "";
+    this.buyserv.getImage(buy.image._id, buy.image.type).subscribe((data => {
+
+      
+      let reader = new FileReader();
+
+      reader.addEventListener('load', () => {
+
+        this.editImageFile.src = reader.result as string;
+
+      });
+
+      if (data) {
+
+        reader.readAsDataURL(data);
+
+      }
+
+    }), e => {
+
+      console.error(e);
+
+    });
+
+    this.image = null;
     this.tempbuy = Object.assign({},buy);
     console.log(this.tempbuy.name);
     this.editbuy = buy;
@@ -541,42 +703,29 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
       this.editbuy.description = this.tempbuy.description;
       this.editbuy.cost = this.tempbuy.cost;
       this.editbuy.count = this.tempbuy.count;
+
       console.log(this.tempbuy.name);
       console.log(this.editbuy.name);
-
+      this.image = null;
     }
 
   }
 
-  saveEdit() {
-    
-      
-    this.putBuy();
- 
+  private displayImage(img: File, imageelement: HTMLImageElement) {
 
-  }
-
-  private displayImage(img: File) {
-
-    this.imgFile.src = URL.createObjectURL(img);
-    this.test(this.imgFile.src);
-    this.image = img;
-    return img;
+    console.log('display image');
+    imageelement.src = URL.createObjectURL(img);
+    this.test(imageelement.src);
+    return this.image = img;
 
   }
 
 
-  private addImageToBuy(img: IImage, isedit: boolean): IBuy {
+  private addImageToBuy(img: IImage, buy: IBuy): IBuy {
 
-    if (isedit) {
-
-      this.editbuy.image = img;
-      return this.editbuy;
-
-    }
-
-    this.newbuy.image = img;
-    return this.newbuy;
+    console.log('addimagetobuy');
+    buy.image = img;
+    return buy;
 
   }
 
@@ -592,37 +741,27 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-  private validateBuy(isNew: boolean): boolean {
+  private validateBuy(buy: IBuy): boolean {
 
-    switch (isNew) {
-      case true: {
+    console.log('validate buy');
+    this.test(buy);
+    if (buy.item!='') {
 
-        if (this.newbuy.item!="") {
+      return true;
 
-          return true;
-
-        }
-
-        alert("Задайте все параметры для покупки")
-        return false;
-
-      }
-      case false: {
-
-        if (this.editbuy.item!="") {
-
-          return true;
-
-        }
-
-        alert("Задайте все параметры для покупки")
-        return false;
-
-      }
     }
+
+    alert("Задайте все параметры для покупки")
+    return false;
 
   }
 
+  private changeBuyAfterPut(buy: IBuy) {
+
+    let delindex = this.buys.findIndex(b => b._id == buy._id);
+    this.buys.splice(delindex, 1, buy);
+
+  }
 
   test(test:any) {
 

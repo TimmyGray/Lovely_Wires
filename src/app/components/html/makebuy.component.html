@@ -141,31 +141,44 @@
                     type="button"
                     data-bs-dismiss="modal"
                     aria-label="Close"
-                    class="btn-close"></button>
+                    class="btn-close"
+                    #closeEditBut
+                    name="closeEditBut"></button>
           </div>
           <div class="modal-body">
             <form>
-              <div class="row">
-                <div class="col-5">
-                  <label for="editName">Change buy's name</label>
-                  <input id="editName"
-                         type="text"
-                         class="form-control"
-                         placeholder="Change name"
-                         [(ngModel)]="editbuy.name"
-                         name="ngEditBuyName" />
 
+              <div class="row">
+                <div class="col-6">
+                  <img class="img-thumbnail" name="editImage" #editImage />
+                  <input type="file" class="form-control rouded" #editImageInput name="editImage" />
                 </div>
-                <div class="col-5">
-                  <label for="editCount">Change buy's count</label>
-                  <input id="editCount"
-                         type="number"
-                         class="form-control"
-                         placeholder="Change count"
-                         [(ngModel)]="editbuy.count"
-                         (ngModelChange)="changeCost(false)"
-                         name="ngEditBuyCount" />
-                  <p>Buy's price{{editbuy.cost}}</p>
+                <div class="col-6">
+
+                  <div class="row">
+
+                    <label for="editName">Change buy's name</label>
+                    <input id="editName"
+                           type="text"
+                           class="form-control"
+                           placeholder="Change name"
+                           [(ngModel)]="editbuy.name"
+                           name="ngEditBuyName" />
+                  </div>
+
+                  <div class="row">
+                    <label for="editCount">Change buy's count</label>
+                    <input id="editCount"
+                           type="number"
+                           class="form-control"
+                           placeholder="Change count"
+                           [(ngModel)]="editbuy.count"
+                           (ngModelChange)="changeCost(false)"
+                           name="ngEditBuyCount" />
+                    <p>Buy's price{{editbuy.cost}}</p>
+                  </div>
+
+
                 </div>
               </div>
               <div class="container">
@@ -188,7 +201,7 @@
                         #cancelBut>Cancel</button>
               </div>
               <div class="col-5">
-                <button class="btn btn-success" data-bs-dismiss="modal" (click)="saveEdit()">Save</button>
+                <button class="btn btn-success" #editBuyBt>Save</button>
               </div>
             </div>
           </div>

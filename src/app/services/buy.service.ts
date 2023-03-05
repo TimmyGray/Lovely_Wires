@@ -24,7 +24,14 @@ export class BuyService {
 
   }
 
-  postImage(img: File): Observable<any> {
+  getImage(id: string, type: string): Observable<Blob> {
+
+    const httpheaders: HttpHeaders = new HttpHeaders({ 'Content-Type': `image/${type}` });
+    return this.httpclient.get(`${this.url}/getimg/${id}`, { responseType: 'blob', headers: httpheaders });
+
+  }
+
+  postImage(img: File): Observable<IImage> {
 
     let formdata = new FormData();
     formdata.append("imagedata", img, img.name);
@@ -34,10 +41,21 @@ export class BuyService {
 
   }
 
+
   postBuy(buy: IBuy): Observable<IBuy> {
 
     const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
     return this.httpclient.post<IBuy>(this.url + '/postbuy', JSON.stringify(buy), { headers: httpheaders });
+
+  }
+
+  putImage(img: File, imgid: string): Observable<IImage> {
+
+    let formdata: FormData = new FormData();
+    formdata.append("editimagedata", img, img.name);
+
+    const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "multipart/form-data; biundary = AaB03x" });
+    return this.httpclient.put<any>(this.url + `/putimg/${imgid}`, formdata);
 
   }
 
