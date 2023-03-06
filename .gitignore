@@ -362,4 +362,9 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-*.angular/
+*.angular
+/dist
+/.vs
+/.vscode
+.angular
+dist
