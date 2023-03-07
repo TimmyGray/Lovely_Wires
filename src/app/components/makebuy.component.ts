@@ -15,14 +15,12 @@ import { debounceTime, distinctUntilChanged, exhaust, exhaustMap, filter, map, s
 import { IImage } from './models/IImage.interface';
 import { cableComponent } from './models/enums';
 import { IItem } from './models/IItem.interface';
-import { Console } from 'node:console';
 
 @Component({
 
   selector: 'make-buy',
   templateUrl: `./html/makebuy.component.html`,
   providers: [BuyService, WireService, PriceService, CoilService, ConnectorService],
- // changeDetection: ChangeDetectionStrategy.OnPush
 
 })
 

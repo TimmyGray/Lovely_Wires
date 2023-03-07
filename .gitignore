@@ -364,7 +364,8 @@ FodyWeavers.xsd
 
 *.angular
 /dist
-/.vs
-/.vscode
+*.vs
+*.vscode
 .angular
 dist
+package-lock.json

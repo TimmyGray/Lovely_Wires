@@ -1,8 +1,8 @@
 <div class="container">
-  <h1>Connectors Manager</h1>
+  <h1 class="text-center">Connectors Manager</h1>
   <form>
 
-    <div class="row">
+    <div class="row mb-3">
 
       <div class="col-5">
 
@@ -25,7 +25,7 @@
 
       </div>
     </div>
-    <div class="row">
+    <div class="row justify-content-evenly text-center">
       <div class="col-5">
 
         <button (click)="postConnector()" [disabled]="editBut" [hidden]="editBut" class="btn btn-primary">Make connector</button>
@@ -58,7 +58,7 @@
         <td>{{con.type}}</td>
         <td>{{con.count}}</td>
         <td><button class="btn btn-warning" [disabled]="!editOn[i]" (click)="edit(con,i)">Edit</button></td>
-        <td><button class="btn btn-danger" (click)="deleteConn(con._id)">Delete</button></td>
+        <td><button class="btn btn-danger" (click)="deleteConn(con._id,i)">Delete</button></td>
       </tr>
     </tbody>
 

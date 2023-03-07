@@ -33,7 +33,7 @@ export class ConnectorService {
 
   }
 
-  postConnector(connector: Connector): Observable<any> {
+  postConnector(connector: Connector): Observable<Connector> {
 
     const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
 
@@ -41,7 +41,7 @@ export class ConnectorService {
 
   }
 
-  putConnector(connector: Connector): Observable<any> {
+  putConnector(connector: Connector): Observable<Connector> {
 
     const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
 
@@ -49,7 +49,7 @@ export class ConnectorService {
 
   }
 
-  deleteConnector(_id: string): Observable<any> {
+  deleteConnector(_id: string): Observable<Connector> {
 
     const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
 

@@ -16,14 +16,18 @@ export class MakeConnectorComponent implements OnInit {
 
   connectors: Connector[];
   newConn: Connector;
+  tempconn: Connector;
   tempcount: number;
+  tempindex: number;
   editOn: boolean[];
   editBut: boolean = false;
 
   constructor(private connservice: ConnectorService) {
 
     this.connectors = new Array<Connector>();
-    this.newConn = new Connector("", "", "", 1);
+    this.newConn = this.initConnector();
+    this.tempconn = this.initConnector();
+
     this.editOn = new Array<boolean>();
 
   }
@@ -31,7 +35,6 @@ export class MakeConnectorComponent implements OnInit {
   ngOnInit() {
 
     this.getConnectors();
-
 
   }
 
@@ -58,55 +61,25 @@ export class MakeConnectorComponent implements OnInit {
 
     if (this.newConn.name != "" && this.newConn.type != "" && this.newConn.count != 0) {
 
-      const sameconn: Connector = this.connectors.find(
+      let sameconn: Connector = this.connectors.find(
         c => c.name == this.newConn.name
           && c.type == this.newConn.type);
 
-      if (sameconn == undefined) {
+      if (sameconn != undefined) {
+        alert("Такой разьем уже есть, если хотите изменить его - нажмите Edit в таблице");
         return console.log("Такой разьем уже есть, если хотите изменить его - нажмите Edit в таблице");
       }
-      //let same: boolean = false;
+      this.connservice.postConnector(this.newConn).subscribe((data: Connector) => {
 
-      //for (var i = 0; i < this.connectors.length; i++) {
-
-      //  if (this.connectors[i].type == this.newConn.type && this.connectors[i].name == this.newConn.name) {
-      //    same = true;
-      //    this.newConn.count = this.connectors[i].count++;
-      //    this.newConn._id = this.connectors[i]._id;
-      //    break;
-      //  }
-
-      //}
-
-      //if (same) {
-
-      //  this.putConnector();
-
-      //}
-      //else {
-        this.connservice.postConnector(this.newConn).subscribe((data: any) => {
-
-          if ((data as Connector).name != null) {
-
-            this.connectors.push(data);
-
-          }
-          else {
-
-            
-            console.log(data);
-            this.getConnectors();
-
-          }
+        this.connectors.push(data);
+        this.editOn.push(true);
+        this.resetConnector();
 
         }, (e) => {
 
           console.log(e);
 
         });
-      this.resetConnector();
-      //}
-
 
     }
     else {
@@ -117,9 +90,15 @@ export class MakeConnectorComponent implements OnInit {
 
   }
 
+  private initConnector(): Connector {
+
+    return new Connector("", "", "", 1);
+
+  }
+
   resetConnector() {
 
-    this.newConn = new Connector("", "", "", 1);
+    this.newConn = this.initConnector();
 
   }
 
@@ -127,9 +106,11 @@ export class MakeConnectorComponent implements OnInit {
 
     if (!this.editBut) {
 
+      this.tempindex = index;
       this.editOn[index] = true;
       this.newConn = conn;
-      this.tempcount = conn.count;
+      this.tempconn = Object.assign({}, conn);
+
       for (var i = 0; i < this.editOn.length; i++) {
 
         if (i != index) {
@@ -143,7 +124,7 @@ export class MakeConnectorComponent implements OnInit {
     }
     else {
 
-      this.connectors[index].count = this.tempcount; 
+      this.connectors[index] = this.tempconn;
 
       for (var i = 0; i < this.editOn.length; i++) {
 
@@ -151,19 +132,21 @@ export class MakeConnectorComponent implements OnInit {
         
         
       }
+
       this.resetConnector();
       this.editBut = false;
+      this.tempindex = 0;
     }
 
 
 
   }
 
-  deleteConn(id: string) {
+  deleteConn(id: string, index: number) {
 
-    this.connservice.deleteConnector(id).subscribe((data) => {
+    this.connservice.deleteConnector(id).subscribe((data: Connector) => {
 
-      this.getConnectors();
+      this.connectors.splice(index, 1);
 
     }, (e) => {
 
@@ -175,9 +158,19 @@ export class MakeConnectorComponent implements OnInit {
 
   putConnector() {
 
-    this.connservice.putConnector(this.newConn).subscribe((data) => {
+    this.connservice.putConnector(this.newConn).subscribe((data:Connector) => {
 
-      this.getConnectors();
+      this.connectors.splice(this.tempindex, 1, data);
+
+      for (var i = 0; i < this.editOn.length; i++) {
+
+        this.editOn[i] = true;
+
+
+      }
+
+      this.resetConnector();
+      this.editBut = false;
 
     }, (e) => {
 
@@ -185,17 +178,6 @@ export class MakeConnectorComponent implements OnInit {
      
     });
 
-    for (var i = 0; i < this.editOn.length; i++) {
-
-      this.editOn[i] = true;
-
-
-    }
-    this.resetConnector();
-    this.editBut = false;
-
   }
-
-
 
 }
