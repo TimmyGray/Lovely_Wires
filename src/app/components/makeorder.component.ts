@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,OnDestroy,ElementRef, ViewChild,AfterViewInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { OrderStatus, statuses } from './models/enums';
 import { Order } from './models/order';
@@ -12,8 +12,8 @@ import { BuyService } from '../services/buy.service';
 import { ConnectorService } from '../services/connector.service';
 import { CoilService } from '../services/coil.service';
 import { Client } from './models/client';
-import { arrayBuffer } from 'node:stream/consumers';
-import { escape } from 'node:querystring';
+import { filter, fromEvent, from,of, Observable, Subscription } from 'rxjs';
+import { catchError, exhaust, exhaustMap, map, switchMap } from 'rxjs/operators';
 
 @Component({
 
@@ -23,17 +23,33 @@ import { escape } from 'node:querystring';
 
 })
 
-export class MakeOrderComponent implements OnInit {
+export class MakeOrderComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  @ViewChild("closeBut", { static: false })
+  closeBut: ElementRef;
+
+  @ViewChild("cancelBut", { static: false })
+  cancelBut: ElementRef;
+
+  @ViewChild("editBut", { static: false })
+  editBut: ElementRef;
+
+  @ViewChild("orderClick", { static: false })
+  orderClick: ElementRef;
+
+  orderchange$: Subscription;
 
   orders: Order[];
   stats: string[];
-  editorder: Order;
   listofbuys: IBuy[];
+  templistofbuys: IBuy[];
   templistofcounts: number[];
-  tempstatus: string = "";
-  tempstatus2: number=0;
   accept: boolean[];
+  editorder: Order;
+  tempstatus: string = "";
+  currentstatus_number: number=-1;
   comment: string = "";
+  beforestatus: OrderStatus;
 
   constructor(
     private orderserv: OrderService,
@@ -42,18 +58,73 @@ export class MakeOrderComponent implements OnInit {
     private connserv: ConnectorService,
     private coilserv: CoilService) {
 
-    this.orders = new Array<Order>();
+    this.orders = this.initArray<Order>();
     this.stats = statuses;
-    this.listofbuys = new Array<IBuy>();
-    this.templistofcounts = new Array<number>();
+    this.listofbuys = this.initArray<IBuy>();
+    this.templistofbuys = this.initArray<IBuy>();
+    this.templistofcounts = this.initArray<number>();
     this.editorder = this.initOrder();
-    this.accept = new Array<boolean>();
+    this.accept = this.initArray<boolean>();
   }
 
   ngOnInit(): void {
 
     this.getOrders();
-    //this.getBuys();
+  }
+
+  ngAfterViewInit() {
+
+    this.orderchange$ = fromEvent(this.editButton, 'click').pipe(
+
+      map(() => this.validateOrder()),
+      map(value => { console.log(value); return value }),
+      filter(value => value == true),
+
+      exhaustMap(() => {
+
+        this.editorder.status = OrderStatus[this.tempstatus];
+        return this.orderserv.putOrder(this.editorder, this.comment).pipe(
+
+          map(value => this.ChangeBuysCount(value))
+
+        )
+      }),
+
+      filter(value => value.length != 0),
+
+      exhaustMap(value => this.buyserv.putArrayOfBuys(value).pipe(
+
+        map(value => {
+
+          value.forEach(b => {
+
+            this.afterPutBuy(b);
+
+          });
+        })
+
+      ))
+
+    ).subscribe(() => {
+     
+      console.log('Changes order successful');
+      alert('Changes order successful');
+      this.closeButton.click();
+
+    }, (e) => {
+
+      console.error(e);
+
+    });
+
+
+
+  }
+
+
+  ngOnDestroy():void {
+
+    this.orderchange$.unsubscribe();
 
   }
 
@@ -88,135 +159,160 @@ export class MakeOrderComponent implements OnInit {
     });
 
   }
-  
 
-  async startEdit(curorder: Order) {
+  private get closeButton(): HTMLButtonElement {
+
+    return this.closeBut.nativeElement;
+
+  }
+
+  private get cancelButton(): HTMLButtonElement {
+
+    return this.cancelBut.nativeElement;
+
+  }
+
+  private get editButton(): HTMLButtonElement {
+
+    return this.editBut.nativeElement;
+
+  }
+
+  private get clickOnCurOrder(): HTMLElement {
+
+    return this.orderClick.nativeElement;
+
+  }
+
+  startEdit(curorder: Order) {
 
 
     this.editorder = curorder;
-    this.tempstatus2 = curorder.status;
+    this.currentstatus_number = curorder.status;
     this.listofbuys = this.editorder.listofbuys;
-    this.listofbuys.forEach(b => {
+    let arrayofbuys: string[] = new Array<string>();
 
-      this.templistofcounts.push(b.count);
+    from(this.listofbuys).subscribe((data: IBuy) => {
+
+      console.log(data);
       this.accept.push(false);
+      arrayofbuys.push(data.item);
 
     });
 
-    await this.checkAvailable();
+    this.buyserv.getArrayOfBuys(arrayofbuys).pipe(
+
+      switchMap(value => from(value))
+
+    ).subscribe((data: IBuy) => {
+
+      this.templistofcounts.push(data.count);
+
+    }, (e) => {
+
+      console.log(e);
+
+    });
     
 
   }
 
-  async putOrder() {
 
-    if (this.editorder._id != null && this.editorder._id != '' && this.tempstatus != '') {
+  private validateOrder(): boolean {
 
-      if (this.tempstatus2 == 1 && OrderStatus[this.tempstatus] != 1 && OrderStatus[this.tempstatus] != 2) {
+    if ((this.tempstatus == '')
+      || this.editorder.status == OrderStatus[this.tempstatus]) {
 
-        this.editorder.status = OrderStatus[this.tempstatus];
-
-        await this.orderserv.putOrder(this.editorder).toPromise().then(async (data: IBuy) => {
-
-          console.log(data);
-
-          for (var i = 0; i < this.listofbuys.length; i++) {
-
-            let buy: IBuy = Object.assign({}, this.listofbuys[i]);
-            buy.count = this.templistofcounts[i] + this.listofbuys[i].count;
-            await this.buyserv.putBuy(buy).toPromise().then((data: IBuy) => {
-
-              console.log(`buys after put method ${data.count}`)
-              this.templistofcounts[i] = data.count;
-
-            }).catch(e => {
-
-              console.log(e);
-
-            });
-
-          }
-
-        }).catch(e => {
-
-          console.log(e);
-
-        });
-
-      }
-      if (this.accept.includes(false)) {
-
-        if (this.tempstatus == this.stats[OrderStatus.canceled] && this.comment!="") {
-
-          this.editorder.status = OrderStatus[this.tempstatus];
-
-          await this.orderserv.putOrder(this.editorder).toPromise().then((data) => {
-
-            console.log(data);
-
-          }).catch(e => {
-
-            this.editorder.status = this.tempstatus2;
-            console.log(e);
-
-          })
-
-
-        }
-        else {
-
-          console.log("Не все позиции утверждены или не написан комментарий к отказу");
-
-        }
-
-      }
-      else {
-
-        this.editorder.status = OrderStatus[this.tempstatus];
-
-        await this.orderserv.putOrder(this.editorder).toPromise().then(async (data) => {
-
-          console.log(data);
-
-          for (var i = 0; i < this.listofbuys.length; i++) {
-
-            let buy: IBuy = Object.assign({}, this.listofbuys[i]);
-            buy.count = this.templistofcounts[i] - this.listofbuys[i].count;
-
-            console.log(`Available count of buy:${buy.count}`);
-
-            await this.buyserv.putBuy(buy).toPromise().then((data: IBuy) => {
-
-              console.log(`after putbuy method: ${data} `);
-
-            }).catch(e => {
-
-              console.log(e);
-
-            });
-
-          }
-
-
-        }).catch(e => {
-
-          this.editorder.status = this.tempstatus2;
-          console.log(e);
-
-        });
-
-
-        document.getElementById("closeModal").click();
-      }
+      console.log('Please, select correct order status');
+      alert('Please, select correct order status');
+      return false;
 
     }
     else {
 
-      console.log("Что-то пошло не так=(");
+      if (this.editorder.status == OrderStatus.done) {
+
+        console.log('Done order cant be changed!');
+        alert('Done order cant be changed!');
+        return false;
+
+      }
+
+      if ((OrderStatus.agree == OrderStatus[this.tempstatus] && !this.accept.includes(false))
+        || OrderStatus.under_consideration == OrderStatus[this.tempstatus]
+        || OrderStatus.done == OrderStatus[this.tempstatus]) {
+
+        return true;
+
+      }
+      else {
+
+        if (OrderStatus.canceled == OrderStatus[this.tempstatus] && this.comment != '') {
+
+          return true;
+
+        }
+
+        console.log('Please, check status or avaibale buys. Something wrong!');
+        alert('Please, check status or avaibale buys. Something wrong!');
+        return false;
+
+      }
+
+    }    
+
+  }
+
+  private ChangeBuysCount(afterputorder: Order): IBuy[] {
+
+    console.log(`The order status was changed to ${afterputorder.status}`);
+
+
+    if (this.currentstatus_number == 1
+      && (afterputorder.status == 0
+      || afterputorder.status == 3)) {
+
+      console.log("return buys to storage");
+      for (var i = 0; i < this.listofbuys.length; i++) {
+
+        let buytoput: IBuy = Object.assign({}, this.listofbuys[i]);
+        buytoput.count += this.templistofcounts[i];
+        console.log(`first way buy to put ${buytoput.item}, current count: ${buytoput.count}`);
+        this.templistofbuys.push(buytoput);
+
+      }
+
+    }
+    else if (afterputorder.status == 1) {
+
+      console.log("take buys from storage");
+      for (var i = 0; i < this.listofbuys.length; i++) {
+
+        let buytoput: IBuy = Object.assign({}, this.listofbuys[i]);
+        buytoput.count = this.templistofcounts[i] - buytoput.count;
+        console.log(`second way buy to put ${buytoput.item}, current count: ${buytoput.count}`);
+
+        this.templistofbuys.push(buytoput);
+
+      }
 
     }
 
-  
+    console.log(this.templistofbuys);
+
+    return this.templistofbuys;
+
+  }
+
+  private afterPutBuy(buy: IBuy) {
+
+    console.log(`For now, ${buy.item}:${buy.count} in storage`);
+
+  }
+
+  private initArray<T>(): Array<T> {
+
+    return new Array<T>();
 
   }
 
@@ -224,125 +320,15 @@ export class MakeOrderComponent implements OnInit {
 
     this.tempstatus = "";
     this.editorder = this.initOrder();
-    this.listofbuys = new Array<IBuy>();
+    this.listofbuys = this.initArray<IBuy>();
+    this.templistofcounts = this.initArray<number>();
     this.comment = "";
-    this.tempstatus2 = 0;
+    this.currentstatus_number = -1;
 
   }
+  
 
-  //parseToItem(itemtoparse:string) {
-
-  //  let arrayitem: string[] = itemtoparse.split(';');
-
-  //  let item: Wire;
-  //  let firstconn: Connector;
-  //  let secondconn: Connector;
-  //  let coil: Coil;
-
-  //  arrayitem.forEach(i => {
-
-  //    this.parseToField(i);
-
-  //  });
-
-  //  for (var i = 0; i < arrayitem.length; i++) {
-
-  //    let field: string[] = this.parseToField(arrayitem[i]);
-
-  //    switch (i) {
-
-  //      case 0:
-
-  //        this.connserv.getConnectorByNameAndType(field[0], field[1]).subscribe((data: Connector) => {
-
-  //          console.log(data);
-  //          firstconn = data;
-
-  //        }, (e) => {
-
-  //          return console.log(e);
-
-  //        });
-
-  //        break;
-  //      case 1:
-
-  //        this.connserv.getConnectorByNameAndType(field[0], field[1]).subscribe((data: Connector) => {
-
-  //          console.log(data);
-  //          secondconn = data;
-
-  //        }, (e) => {
-
-  //          return console.log(e);
-
-  //        });
-
-  //        break;
-  //      case 2:
-
-  //        this.coilserv.getCoilByNameAndType(field[0], field[1]).subscribe((data: Coil) => {
-
-  //          console.log(data);
-  //          coil = data;
-
-  //        }, (e) => {
-
-  //          return console.log(e);
-
-  //        });
-
-  //        break;
-
-  //    }
-
-  //  }
-
-  //}
-
-  //parseToField(itemtoparse: string):string[] {
-
-  //  let field: string[] = itemtoparse.split(",");
-
-  //  return field;
-  //}
-
-  async checkAvailable(){
-
-    for (var i = 0; i < this.listofbuys.length; i++) {
-
-      await this.buyserv.getBuy(this.listofbuys[i]._id).toPromise()
-        .then((data: IBuy) => {
-
-          this.templistofcounts[i] = data.count
-
-        })
-        .catch((e) => {
-
-          console.log(e);
-          this.templistofcounts[i] = -999;
-
-      });
-
-    }
-
-  }
-
-  putBuys(buy: IBuy) {
-
-    this.buyserv.putBuy(buy).subscribe((data: IBuy) => {
-
-
-
-    }, (e) => {
-
-      console.log(e);
-
-    });
-
-  }
-
-  initOrder():Order {
+  private initOrder():Order {
 
     return new Order(
       "",
@@ -372,12 +358,13 @@ export class MakeOrderComponent implements OnInit {
     });
   }
 
-  deleteOrder(e, id: string) {
+  deleteOrder(e: Event, id: string) {
 
+    e.stopPropagation();
+    this.cancelButton.click();
 
     this.orderserv.deleteOrder(id).subscribe((data: Order) => {
 
-      console.log(data);
       let index: number = this.orders.findIndex(o => o._id == data._id);
       this.orders.splice(index, 1);
 

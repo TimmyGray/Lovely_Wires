@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { IBuy } from '../components/models/IBuy.interface';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { IImage } from '../components/models/IImage.interface';
 
 @Injectable()
@@ -21,6 +21,23 @@ export class BuyService {
 
     const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
     return this.httpclient.get<IBuy>(this.url + `/${id}`, { observe: "body", headers: httpheaders, responseType: "json" });
+
+  }
+
+  getBuyByItem(item: string): Observable<IBuy> {
+
+    const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
+    return this.httpclient.get<any>(this.url + `/getitembuy/${item}`, { observe: 'body', headers: httpheaders, responseType: "json" });
+
+  }
+
+  getArrayOfBuys(buystoget: string[]): Observable<IBuy[]> {
+
+    let params = { arrayofbuys: buystoget };
+	
+    const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json", "Params": `${JSON.stringify(params)}` });
+
+    return this.httpclient.get<IBuy[]>(this.url + '/arrayofbuys', { headers: httpheaders });
 
   }
 
@@ -66,8 +83,14 @@ export class BuyService {
 
   }
 
-  deleteBuy(id: string,imgid:string): Observable<any> {
+  putArrayOfBuys(buys: IBuy[]): Observable<IBuy[]> {
 
+    const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
+    return this.httpclient.put<any>(this.url + '/putarrayofbuys', JSON.stringify(buys), { headers: httpheaders });
+
+  }
+
+  deleteBuy(id: string, imgid: string): Observable<any> {
     const httheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
     return this.httpclient.delete<any>(this.url + `/deletebuy/${id}/${imgid}`, { observe: "body", headers: httheaders, responseType: "json" });
   }

@@ -17,16 +17,20 @@ export class OrderService {
 
   }
 
-  putOrder(order: Order): Observable<any> {
+  putOrder(order: Order, comment: string): Observable<Order> {
+
+    if (comment == '') {
+      comment = '0';
+    }
 
     const httpheaders: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.httpclient.put<Order>(this.url + '/putorder', JSON.stringify(order), { headers: httpheaders });
+    return this.httpclient.put<Order>(this.url + `/putorder/${comment}`, JSON.stringify(order), { headers: httpheaders });
 
   }
 
-  deleteOrder(id: string): Observable<any> {
+  deleteOrder(id: string): Observable<Order> {
 
-    return this.httpclient.delete(this.url +'/deleteorder'+`/${id}`);
+    return this.httpclient.delete<Order>(this.url +'/deleteorder'+`/${id}`);
 
   }
 
