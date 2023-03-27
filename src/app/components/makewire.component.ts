@@ -42,12 +42,13 @@ export class MakeWireComponent implements OnInit {
   newWire: Wire  = null;
   coilname: string = "";
   coillength: number = 0;
-  firstconnector: string = "";
+  connector: Connector;
   secondconnector: string = "";
-  firstcon: Connector;
-  secondcon: Connector;
+  firstcon: Connector[];
+  secondcon: Connector[];
   coil: Coil;
   availablelength: number = 0;
+  previosnumber: number=0;
   status: string;
   orderfirst: number = 1;
   ordersecond: number = 1;
@@ -56,9 +57,9 @@ export class MakeWireComponent implements OnInit {
 
   ngOnInit() {
 
-    this.LoadWires();
-    this.LoadCoils();
-    this.LoadConnectors();
+    this.getWires();
+    this.getCoils();
+    this.getConnectors();
 
   }
 
@@ -67,17 +68,17 @@ export class MakeWireComponent implements OnInit {
     private coilserv: CoilService,
     private conserv: ConnectorService) {
 
-    this.wires = new Array<Wire>();
-    this.coils = new Array<Coil>();
+    this.wires = this.initArray<Wire>();
+    this.coils = this.initArray<Coil>();
     this.coil = new Coil("", "", "", "", 0);
-    this.newWire = new Wire("", "", "", "", "", 0);
-    this.firstcon = new Connector("", "", "", 0);
-    this.secondcon = new Connector("", "", "", 0);
-    this.connectors = new Array<Connector>();
+    this.newWire = new Wire("", "", this.initArray<Connector>(), this.initArray<Connector>(), "", 0, 0);
+    this.firstcon = this.initArray<Connector>();
+    this.secondcon = this.initArray<Connector>();
+    this.connectors = this.initArray<Connector>();
 
   }
 
-  private LoadWires() {
+  private getWires() {
 
     this.wireserv.getWires().subscribe((data: Wire[]) => {
 
@@ -87,7 +88,7 @@ export class MakeWireComponent implements OnInit {
 
   }
 
-  private LoadCoils() {
+  private getCoils() {
 
     this.coilserv.getCoils().subscribe((data: Coil[]) => {
 
@@ -97,7 +98,7 @@ export class MakeWireComponent implements OnInit {
 
   }
 
-  private LoadConnectors() {
+  private getConnectors() {
 
     this.conserv.getConnectors().subscribe((data: Connector[]) => {
 
@@ -135,7 +136,7 @@ export class MakeWireComponent implements OnInit {
 
   EditWire(wire: Wire) {
 
-    this.editWire = new Wire(wire._id, wire.name, wire.firstconn, wire.secondconn, wire.coil, wire.length);
+    this.editWire = new Wire(wire._id, wire.name, wire.firstconn, wire.secondconn, wire.coil, wire.length,wire.numberofconnectors);
 
   }
 
@@ -143,9 +144,10 @@ export class MakeWireComponent implements OnInit {
 
   PutWire() {
 
-    this.wireserv.editWire(this.editWire as Wire).subscribe((data) => {
+    this.wireserv.editWire(this.editWire as Wire).subscribe((data:Wire) => {
 
-      this.LoadWires();
+      let index: number = this.wires.findIndex(w => w._id == data._id);
+      this.wires.splice(index, 1, data);
       this.status = "Успешно отредактировано";
       this.editWire = null;
 
@@ -161,72 +163,21 @@ export class MakeWireComponent implements OnInit {
 
     if (this.newWire.coil != ""
       && this.newWire.name != ""
-      && this.newWire.firstconn != ""
-      && this.newWire.secondconn != ""
+      && this.newWire.firstconn.length != 0
+      && this.newWire.secondconn.length != 0
       && this.newWire.length != 0) {
 
-      let enougth: boolean;
+      this.wireserv.postWire(this.newWire as Wire).subscribe((data: Wire) => {
 
-      if (this.firstcon._id == this.secondcon._id) {
+        this.wires.push(data);
+        this.status = `Кабель ${this.newWire.name} успешно создан`;
 
-        enougth = 0 <= this.firstcon.count - 2;
+      }, (e) => {
 
-      }
-      else {
-
-        enougth = 0 <= (this.firstcon.count - 1 && this.secondcon.count - 1);
-
-      }
-
-      if (enougth) {
-
-        this.coil.length = this.availablelength;
-        this.wireserv.postWire(this.newWire as Wire).subscribe((data) => {
-
-          this.LoadWires();
-          this.status = `Кабель ${this.newWire.name} успешно создан, его характеристики: ${this.firstcon.type}-${this.secondcon.type},${this.newWire.length}м`;
-
-        }, (e) => {
-
-          return console.log(e);
-          
-
-        });
-
-        this.firstcon.count--;
-        this.secondcon.count--;
-
-        this.conserv.putConnector(this.firstcon as Connector).subscribe((data) => {
+        console.log(e);
 
 
-
-        }, (e) => {
-
-          return console.log(e);
-
-        });
-
-        this.conserv.putConnector(this.secondcon as Connector).subscribe((data) => {
-
-          this.LoadConnectors();
-
-        }, (e) => {
-
-          return console.log(e);
-
-        });
-
-        this.coilserv.editCoil(this.coil as Coil).subscribe(_ => {
-          this.LoadCoils();
-        });
-
-      }
-      else {
-
-        console.log("Недостаточно разъемов");
-
-      }
-
+      });
 
     }
     else {
@@ -240,10 +191,12 @@ export class MakeWireComponent implements OnInit {
 
   DeleteWire(delwire: Wire) {
 
-    this.wireserv.deleteWire(delwire._id).subscribe((data) => {
+    this.wireserv.deleteWire(delwire._id).subscribe((data:Wire) => {
 
+      let index: number = this.wires.findIndex(w => w._id == data._id);
+      this.wires.splice(index, 1);
       this.status = "Успешно удалено";
-      this.LoadWires();
+      
 
     }, (e) => {
 
@@ -259,31 +212,31 @@ export class MakeWireComponent implements OnInit {
 
   }
 
-  setConnector(isFirst: boolean) {
+  //setConnector(isFirst: boolean) {
 
-    if (isFirst) {
+  //  if (isFirst) {
 
-      const nameandtype = this.firstconnector.split('-');
+  //    const nameandtype = this.firstconnector.split('-');
 
-      this.firstcon = this.connectors.find(c => c.name == nameandtype[0] && c.type == nameandtype[1]);
+  //    this.firstcon = this.connectors.find(c => c.name == nameandtype[0] && c.type == nameandtype[1]);
 
-      this.newWire.firstconn = this.firstcon._id;
+  //    this.newWire.firstconn = this.firstcon._id;
 
-      console.log(`first connector is ${this.firstcon.name}`);
-    }
+  //    console.log(`first connector is ${this.firstcon.name}`);
+  //  }
 
-    else {
+  //  else {
 
-      const nameandtype = this.secondconnector.split('-');
+  //    const nameandtype = this.secondconnector.split('-');
 
-      this.secondcon = this.connectors.find(c => c.name == nameandtype[0] && c.type == nameandtype[1]);
+  //    this.secondcon = this.connectors.find(c => c.name == nameandtype[0] && c.type == nameandtype[1]);
 
-      this.newWire.secondconn = this.secondcon._id;
+  //    this.newWire.secondconn = this.secondcon._id;
 
-      console.log(`second connector is ${this.secondcon.name}`);
-    }
+  //    console.log(`second connector is ${this.secondcon.name}`);
+  //  }
 
-  }
+  //}
 
   CheckLengthNew(length: NgModel) {
 
@@ -320,8 +273,6 @@ export class MakeWireComponent implements OnInit {
 
     try {
 
-      this.coil = this.coils.find(c => c.name == this.coilname);
-
       this.newWire.coil = this.coil._id;
 
       this.availablelength = this.coil.length;
@@ -339,14 +290,76 @@ export class MakeWireComponent implements OnInit {
 
   }
 
-  getConnectorName(id: string): string {
+  //getConnectorName(id: string): string {
 
-    const conn: Connector = this.connectors.find(c => c._id == id);
+  //  const conn: Connector = this.connectors.find(c => c._id == id);
 
-    return conn.type;
+  //  return conn.type;
+
+  //}
+
+  private initConnector(): Connector {
+
+    return new Connector("", "", "", 0);
 
   }
 
+  private initArray<T>(): T[] {
+
+    return new Array<T>();
+
+  }
+
+  changeConnector(conn: Connector) {
+
+    conn.count = 1;
+
+    conn = Object.assign({}, conn);
+
+    console.log(conn.count);
+  }
+
+  changeCountOfConnectors(isEdit: boolean) {
+
+    let wire: Wire;
+   
+
+    if(isEdit) {
+
+      wire = this.editWire;
+    }
+    else {
+
+      wire = this.newWire;
+    }
+
+    let count = this.previosnumber - wire.numberofconnectors;
+    if (this.previosnumber > wire.numberofconnectors) {
+
+      while (count > 0) {
+
+        wire.firstconn.pop();
+        wire.secondconn.pop();
+
+        count--;
+      }
+
+    }
+    if (this.previosnumber < wire.numberofconnectors) {
+
+      while (count < 0) {
+
+        wire.firstconn.push(this.initConnector());
+        wire.secondconn.push(this.initConnector());
+
+        count++;
+      }
+      
+    }
+
+    this.previosnumber = wire.numberofconnectors;
+
+  }
 
   Sorting(event: any) {
 

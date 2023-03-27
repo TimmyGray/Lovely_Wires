@@ -5,15 +5,17 @@
 
       <div class="row">
 
-        <div class="col-5">
-          <input type="text"
+        <div class="col-6">
+          <label for="buyname" class="text-primary">Name of buy</label>
+          <input id="buyname"
+                 type="text"
                  class="form-control"
                  placeholder="Buy's name"
                  [(ngModel)]="newbuy.name"
                  name="ngNewBuyName" />
         </div>
 
-        <div class="col-5">
+        <div class="col-6">
           <label for="selectItem" class="text-primary">Select wire</label>
           <select class="form-select"
                   [(ngModel)]="selectedwire"
@@ -28,25 +30,50 @@
       <div class="row">
 
         <div class="col-6">
-
-          <h5>First connector:{{selectedfirstcon.name}},{{selectedfirstcon.type}}:{{firstconprice.cost}}$</h5>
-          <h5>Second connector:{{selectedsecondcon.name}},{{selectedsecondcon.type}}:{{secondconprice.cost}}$</h5>
-          <h5>Coil:{{selectedcoil.name}},{{selectedcoil.type}}:{{coilprice.cost}}$</h5>
-          <h5>Wire's length:{{selectedwire.length}}m</h5>
-          <h4>Cost:{{newbuy.cost}}$</h4>
-
-        </div>
-        <div class="col-4">
-          <label for="buyCount">Buy's count</label>
+          <label class="text-primary" for="buyCount">Buy's count</label>
           <input id="buyCount"
                  placeholder="0"
                  class="form-control"
                  type="number"
                  [(ngModel)]="newbuy.count"
-                 (ngModelChange)="changeCost(true)"
+                 (ngModelChange)="changeCount(true)"
                  name="ngNewBuyCount" />
 
+
+
         </div>
+
+      </div>
+
+      <div class="row mt-2">
+
+        <div class="col-6">
+
+          <h4>First connector:</h4>
+          <div *ngFor="let firstconnector of selectedwire.firstconn; let i=index">{{i+1}}.{{firstconnector.name}},{{firstconnector.type}}:{{firstconprice[i]?.cost}}$</div>
+
+          <h4 class="mt-3">Second connector:</h4>
+          <div *ngFor="let secondconnector of selectedwire.secondconn; let i = index">{{i+1}}.{{secondconnector.name}},{{secondconnector.type}}:{{secondconprice[i]?.cost}}$</div>
+
+        </div>
+
+        <div class="col-6">
+
+          <h4>Available  connectors:</h4>
+          <div *ngFor="let con of sameconnectors; let i = index">{{con.name}}-{{con.type}}:{{con.count}}</div>
+
+        </div>
+      </div>
+
+      <div class="row">
+
+        <h4>Coil:{{selectedcoil.name}},{{selectedcoil.type}}:{{coilprice?.cost}}$</h4>
+        <h4>Wire's length:{{selectedwire.length}}m</h4>
+        <h4 class="mb-3">Cost:{{newbuy.cost}}$</h4>
+
+        <h4>Available length:</h4>
+        <div class="mb-2">{{tempcoillength}}</div>
+
       </div>
 
       <div class="container mb-3">
@@ -77,15 +104,16 @@
 
         <div class="col-5">
 
-          <button class="btn btn-secondary"  name="resetbut" #resetbut>Reset</button>
+          <button class="btn btn-secondary"
+                  (click)="resetClick()"
+                  name="resetbut"
+                  #resetbut>Reset</button>
 
         </div>
 
         <div class="col-5">
 
-          <button
-                  class="btn btn-primary"
-                  
+          <button class="btn btn-primary"
                   name="submitbut"
                   #submitbut>Make buy</button>
 
@@ -100,8 +128,9 @@
     <table class="table table-hover table-striped table-dark">
       <thead>
         <tr>
+          <th></th>
           <th>Name</th>
-          <th>Decription</th>
+         <!-- <th>Decription</th>-->
           <th>Item</th>
           <th>Cost</th>
           <th>Count</th>
@@ -111,12 +140,12 @@
       <tbody>
         <tr
             (click)="editBuy(buy)"
-            *ngFor="let buy of buys"
+            *ngFor="let buy of buys; let i = index"
             data-bs-toggle="modal"
             data-bs-target="#buysModal">
-
+          <td>{{i+1}}</td>
           <td>{{buy.name}}</td>
-          <td>{{buy.description}}</td>
+          <!--<td>{{buy.description}}</td>-->
           <td>{{buy.item}}</td>
           <td>{{buy.cost}}</td>
           <td>{{buy.count}}</td>
@@ -127,8 +156,10 @@
     </table>
 
     <div
-         class="modal fage"
+         class="modal fade"
          id="buysModal"
+         data-bs-backdrop="static"
+         data-bs-keybord="false"
          aria-hidden="true"
          aria-labelledby="modalLabel"
          tabindex="-1">
@@ -143,7 +174,8 @@
                     aria-label="Close"
                     class="btn-close"
                     #closeEditBut
-                    name="closeEditBut"></button>
+                    name="closeEditBut"
+                    (click)="cancelEdit()"></button>
           </div>
           <div class="modal-body">
             <form>
@@ -173,13 +205,45 @@
                            class="form-control"
                            placeholder="Change count"
                            [(ngModel)]="editbuy.count"
-                           (ngModelChange)="changeCost(false)"
+                           (ngModelChange)="changeCount(false)"
                            name="ngEditBuyCount" />
-                    <p>Buy's price{{editbuy.cost}}</p>
+                    <p>Buy's price:{{editbuy.cost}}$</p>
                   </div>
 
 
                 </div>
+
+              </div>
+              <div class="container">
+
+                <div class="row">
+
+                  <div class="col-6">
+                    <div>First connectors:</div>
+                    <div *ngFor="let con of selectedwire.firstconn; let i = index">{{i+1}}.{{con.name}}-{{con.type}}</div>
+                  </div>
+                  <div class="col-6">
+                    <div>Second connectors:</div>
+                    <div *ngFor="let con of selectedwire.secondconn; let i = index">{{i+1}}.{{con.name}}-{{con.type}}</div>
+                  </div>
+
+                </div>
+
+                <div class="row">
+
+                  <div>Available count of connectors</div>
+                  <div *ngFor="let con of sameconnectors;let i = index">{{con.name}}-{{con.type}}:{{con.count}}</div>
+
+                </div>
+
+                <div class="row">
+
+                  <div class="col-6">Available length:</div>
+                  <div class="col-6">{{tempcoillength}},m</div>
+
+                </div>
+
+
               </div>
               <div class="container">
                 <textarea placeholder="Change description"

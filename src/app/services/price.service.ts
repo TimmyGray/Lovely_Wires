@@ -11,15 +11,29 @@ export class PriceService {
 
   constructor(private client: HttpClient) { }
 
-  getPrices(): Observable<Array<Price>> {
+  getPrices(): Observable<Price[]> {
 
     const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
 
-    return this.client.get<Array<Price>>(this.url, { observe: "body", headers: httpheaders, responseType: "json" });
+    return this.client.get<Price[]>(this.url, { observe: "body", headers: httpheaders, responseType: "json" });
 
   }
 
-  postPrice(price: Price): Observable<any> {
+  getPrice(id: string): Observable<Price> {
+
+    return this.client.get<Price>(this.url + `/${id}`);
+
+  }
+
+  getArrayOfPrices(arrayofids: string[]): Observable<Price[]> {
+
+    let params = { arrayofprices: arrayofids };
+    const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "applicaton/json", "Params": `${JSON.stringify(params)}` });
+    return this.client.get<Price[]>(this.url + '/arrayofprices', { observe: "body", headers: httpheaders });
+
+  }
+
+  postPrice(price: Price): Observable<Price> {
 
     const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
 
@@ -27,7 +41,7 @@ export class PriceService {
 
   }
 
-  putPrice(price: Price): Observable<any> {
+  putPrice(price: Price): Observable<Price> {
 
     const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
 
@@ -35,7 +49,7 @@ export class PriceService {
 
   }
 
-  deletePrice(_id: string): Observable<any>{
+  deletePrice(_id: string): Observable<Price>{
 
     const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
 

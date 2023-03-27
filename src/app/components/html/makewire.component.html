@@ -39,11 +39,10 @@
         <select id="CoilWire"
                 class="form-select form-select-md"
                 aria-label="open"
-                [(ngModel)]="coilname"
+                [(ngModel)]="coil"
                 (ngModelChange)="SetCoil()"
                 #wirecoil="ngModel" required>
-          <option value="">Выбрать катушку</option>
-          <option *ngFor="let coil of coils">{{coil.name}}</option>
+          <option *ngFor="let coil of coils" [ngValue]="coil">{{coil.name}}-{{coil.type}}</option>
         </select>
         <div [hidden]="wirecoil.untouched||wirecoil.valid" class="alert alert-danger">
           Необходимо указать катушку из которой будет сделан провод
@@ -56,27 +55,42 @@
 
     <div class="row justify-content-between mb-5">
 
-      <div class="col-5 col-md-4">
+      <div class=" col-2 col-md-2">
 
-        <label class="text-primary" for="WireConn1">First connector type</label>
-        <select id="WireConn1"
-                class="form-select form-select-md"
-                aria-label="open"
-                [(ngModel)]="firstconnector"
-                (ngModelChange)="setConnector(true)"
-                #firstconn="ngModel" required>
-          <option value="">Выбрать первый коннектор</option>
-          <option *ngFor="let connector of connectors">{{connector.name}}-{{connector.type}}</option>
-        </select>
-        <div [hidden]="firstconn.valid||firstconn.untouched" class="alert alert-danger">
-          Не указан разъем
-        </div>
-        <div>
-          <p>Count: {{firstcon.count}}</p>
-        </div>
+        <label for="connNumber" class="text-primary">Number of connectors</label>
+        <input id="connNumber"
+               class="form-control"
+               type="number"
+               placeholder="0"
+               [(ngModel)]="newWire.numberofconnectors"
+               (ngModelChange)="changeCountOfConnectors(false)"
+               #numberofconnectors="ngModel" required/>
+
       </div>
 
-      <div class="col-2 col-md-3 text-center">
+      <div class="col-4 col-md-4">
+
+        <label class="text-primary" for="WireConn1">First connector</label>
+        <div *ngFor="let conn of newWire.firstconn; let i=index">
+          <select id="WireConn1"
+                  class="form-select form-select-md"
+                  aria-label="open"
+                  [(ngModel)]="newWire.firstconn[i]"
+                  (ngModelChange)="changeConnector(newWire.firstconn[i])"
+                  #firstconn="ngModel" required>
+            <option [ngValue]="connector" *ngFor="let connector of connectors">{{connector.name}}-{{connector.type}}</option>
+          </select>
+          <div [hidden]="firstconn.valid||firstconn.untouched" class="alert alert-danger">
+            Не указан разъем
+          </div>
+
+        </div>
+        <!--<div>
+          <p>Count: {{firstcon.count}}</p>
+        </div>-->
+      </div>
+
+      <div class="col-2 col-md-2 text-center">
 
         <label class="text-primary" for="WireLength">Length м</label>
         <input type="number"
@@ -98,24 +112,27 @@
         </div>
       </div>
 
-      <div class="col-5 col-md-4">
+      <div class="col-4 col-md-4">
 
-        <label class="text-primary" for="WireConn2">Second connector type</label>
-        <select id="WireConn2"
-                class="form-select form-select-md"
-                aria-label="open"
-                [(ngModel)]="secondconnector"
-                (ngModelChange)="setConnector(false)"
-                #secondconn="ngModel" required>
-          <option value="">Выбрать второй коннектор</option>
-          <option *ngFor="let connector of connectors">{{connector.name}}-{{connector.type}}</option>
-        </select>
-        <div [hidden]="secondconn.valid||secondconn.untouched" class="alert alert-danger">
-          Не указан разьем
+        <label class="text-primary" for="WireConn2">Second connector</label>
+        <div *ngFor="let conn of newWire.secondconn; let i = index">
+
+          <select id="WireConn2"
+                  class="form-select form-select-md"
+                  aria-label="open"
+                  [(ngModel)]="newWire.secondconn[i]"
+                  #secondconn="ngModel" required>
+            <option [ngValue]="connector" *ngFor="let connector of connectors">{{connector.name}}-{{connector.type}}</option>
+          </select>
+          <div [hidden]="secondconn.valid||secondconn.untouched" class="alert alert-danger">
+            Не указан разьем
+          </div>
+
+
         </div>
-        <div>
+        <!--<div>
           <p>Count: {{secondcon.count}}</p>
-        </div>
+        </div>-->
       </div>
 
     </div>
@@ -126,7 +143,7 @@
         <button type="submit"
                 class="btn btn-primary"
                 (click)="PostWire()"
-                [disabled]="wirename.invalid||firstconn.invalid||length.invalid||secondconn.invalid">
+                >
         Make Wire</button>
       </div>
 
@@ -151,6 +168,7 @@
               <th (click)="Sorting($event)" class="hand" #firstconth>First connector</th>
               <th (click)="Sorting($event)" class="hand" #lengthth>Length</th>
               <th (click)="Sorting($event)" class="hand" #secondconnth>Second connector</th>
+              <th>Number of connectors</th>
               <th>Edit</th>
               <th>Delete</th>
             </tr>
@@ -181,9 +199,18 @@
 
   
   <td>{{wire.name}}</td>
-  <td [textContent]="getConnectorName(wire.firstconn)"></td>
+  <td>
+    <p *ngFor="let firstconnector of wire.firstconn">
+      {{firstconnector.type}}
+    </p>
+  </td>
   <td>{{wire.length}}</td>
-  <td>{{getConnectorName(wire.secondconn)}}</td>
+  <td>
+    <p *ngFor="let secondconnector of wire.secondconn">
+      {{secondconnector.type}}
+    </p>
+  </td>
+  <td>{{wire.numberofconnectors}}</td>
   <td>
     <input type="button"
            class="btn btn-warning"
@@ -211,10 +238,10 @@
   <td>
     <select class="form-select form-select-md"
             aria-label="open"
-            [(ngModel)]="firstconnector"
-            (ngModelChange)="setConnector(true)"
+            *ngFor ="let conn of editWire.firstconn; let i = index"
+            [(ngModel)]="editWire.firstconn[i]"
             #editfirstconn="ngModel" required>
-      <option *ngFor="let connector of connectors">{{connector.name}}-{{connector.type}}</option>
+      <option [ngValue]="connector" *ngFor="let connector of connectors;let i = index">{{connector.name}}-{{connector.type}}</option>
     </select>
   </td>
   <td>
@@ -227,18 +254,26 @@
   <td>
     <select class="form-select form-select-md"
             aria-label="open"
-            [(ngModel)]="secondconnector"
-            (ngModelChange)="setConnector(false)"
+            *ngFor ="let conn of editWire.secondconn; let i = index"
+            [(ngModel)]="editWire.secondconn[i]"
             #editsecondconn="ngModel" required>
-      <option *ngFor="let connector of connectors">{{connector.name}}-{{connector.type}}</option>
+      <option [ngValue] ="connector" *ngFor="let connector of connectors">{{connector.name}}-{{connector.type}}</option>
     </select>
+  </td>
+  <td>
+
+    <input class="form-control"
+           type="number"
+           (ngModel)]="editWire.numberofconnectors"
+           (ngModelChange)="changeCountOfConnectors(true)"
+            required/>
   </td>
   <td>
     <input type="button"
            class="btn btn-primary"
            value="Save"
            (click) = "PutWire()"
-           [disabled]="editfirstconn.invalid||editname.invalid||editlength.invalid||editsecondconn.invalid" />
+            />
   </td>
   <td>
     <input type="button"

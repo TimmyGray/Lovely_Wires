@@ -36,7 +36,7 @@ export class CoilService{
 
   }
 
-  postCoil(coil: Coil): Observable<any> {
+  postCoil(coil: Coil): Observable<Coil> {
 
     const headers: HttpHeaders = new HttpHeaders().set("Content-Type", "application/json");
 
@@ -45,7 +45,7 @@ export class CoilService{
 
   }
 
-  editCoil(coil: Coil): Observable<any> {
+  editCoil(coil: Coil): Observable<Coil> {
 
     const headers: HttpHeaders = new HttpHeaders().set("Content-Type", 'application/json');
 
@@ -53,7 +53,7 @@ export class CoilService{
 
   }
 
-  deleteCoil(id: string): Observable<any> {
+  deleteCoil(id: string): Observable<Coil> {
 
     return this.client.delete<Coil>(this.url + `/deletecoil/${id}`);
 

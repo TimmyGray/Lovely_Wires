@@ -12,18 +12,18 @@ export class WireService {
 
   constructor(private http: HttpClient) { }
 
-  getWires(): Observable<any> {
+  getWires(): Observable<Wire[]> {
 
-    return this.http.get<Array<Wire>>(this.url);
+    return this.http.get<Wire[]>(this.url);
   }
 
-  getOrderWires(order: number, group: string): Observable<any> {
+  getOrderWires(order: number, group: string): Observable<Wire[]> {
 
-    return this.http.get<Array<Wire>>(this.url + `/` + group + `/` + order);
+    return this.http.get<Wire[]>(this.url + `/` + group + `/` + order);
 
   }
 
-  getRangeOfWires(wiresid:string[]): Observable<any> {
+  getRangeOfWires(wiresid:string[]): Observable<Wire[]> {
 
     const httpheaders = new HttpHeaders().set("Content-Type", "application/json");
 
@@ -38,7 +38,7 @@ export class WireService {
 
   }
 
-  postWire(wire: Wire): Observable<any> {
+  postWire(wire: Wire): Observable<Wire> {
 
     const httpheaders = new HttpHeaders().set("Content-Type", "application/json");
 
@@ -46,7 +46,7 @@ export class WireService {
 
   }
 
-  editWire(wire: Wire): Observable<any> {
+  editWire(wire: Wire): Observable<Wire> {
 
     const httpheaders = new HttpHeaders().set("Content-Type", "application/json");
 
@@ -54,7 +54,7 @@ export class WireService {
 
   }
 
-  deleteWire(id: string): Observable<any> {
+  deleteWire(id: string): Observable<Wire> {
 
     return this.http.delete<Wire>(this.url + '/deletewire/' + id);
 

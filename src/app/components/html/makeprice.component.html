@@ -41,7 +41,7 @@
       <tr>
         <th>Name</th>
         <th>Cost</th>
-        <th>Item's name</th>
+        <th>Item</th>
         <th></th>
       </tr>
     </thead>
@@ -49,7 +49,7 @@
       <tr *ngFor="let price of prices;let i=index">
         <td>{{price.name}}</td>
         <td>{{price.cost}}</td>
-        <td>{{price?.itemofprice?.name}}</td>
+        <td>{{price.itemofprice.name}}-{{price.itemofprice.type}}</td>
         <td><button class="btn btn-danger" (click)="deletePrice(price._id)">Delete</button></td>
       </tr>
     </tbody>

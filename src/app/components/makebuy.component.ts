@@ -1,4 +1,4 @@
-import { Component, OnInit,ViewChild,ElementRef,ChangeDetectionStrategy, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit,ViewChild,ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { NgForm, NgModel } from '@angular/forms';
 import { IBuy } from './models/IBuy.interface';
 import { BuyService } from '../services/buy.service';
@@ -10,8 +10,8 @@ import { Wire } from './models/wire';
 import { Price } from './models/price';
 import { Connector } from './models/connector';
 import { Coil } from './models/coil';
-import { Observable, fromEvent, Subscription, Subject, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, exhaust, exhaustMap, filter, map, switchMap, takeUntil, mapTo, catchError, find } from 'rxjs/operators';
+import { Observable, fromEvent, Subscription, Subject, of, from } from 'rxjs';
+import { debounceTime, distinctUntilChanged, exhaustMap, filter, map, switchMap, takeUntil, mapTo, catchError, concatMap, exhaust } from 'rxjs/operators';
 import { IImage } from './models/IImage.interface';
 import { cableComponent } from './models/enums';
 import { IItem } from './models/IItem.interface';
@@ -56,28 +56,27 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
   closeEditBut: ElementRef;
 
   upload: Observable<any>;
-  selectedwireobs$: Observable<any>;
+  selectedwireobs$: Subscription;
   editImage$: Subscription;
-  inputImageChange: Observable<any>;
   editBuy$: Subscription;
-  
-
   buys: IBuy[];
   wires: Wire[];
   prices: Price[];
+  connectors: Connector[];
+  firstconprice: Price[];
+  secondconprice: Price[];
+  sameconnectors: Connector[];
+
   newbuy: IBuy;
   editbuy: IBuy;
   tempbuy: IBuy;
   selectedwire: Wire;
-  selectedfirstcon: Connector;
-  selectedsecondcon: Connector;
   selectedcoil: Coil;
-  firstconprice: Price;
-  secondconprice: Price;
   coilprice: Price;
-  tempcost: number;
+  tempcoillength: number;
   image: File;
-  selectoritem: any;  
+  selectoritem: any;
+  tempcountbuy: number;
 
   constructor(
     private buyserv: BuyService,
@@ -89,14 +88,16 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
     this.buys = new Array<IBuy>();
     this.wires = new Array<Wire>();
     this.prices = new Array<Price>();
+    this.firstconprice = new Array<Price>();
+    this.secondconprice = new Array<Price>();
+    this.connectors = new Array<Connector>();
     this.newbuy = this.resetBuy();
     this.editbuy = this.resetBuy();
-    this.firstconprice = this.resetPrice();
-    this.secondconprice = this.resetPrice();
+    this.tempbuy = this.resetBuy();
     this.coilprice = this.resetPrice();
     this.selectedcoil = this.resetCoil();
-    this.selectedfirstcon = this.resetConnector();
-    this.selectedsecondcon = this.resetConnector();
+    this.tempcoillength = 0;
+    this.tempcountbuy = 0;
     this.resetWire();
   }
 
@@ -105,6 +106,7 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
     this.getBuys();
     this.getWires();
     this.getPrices();
+    this.getConnectors();
 
     this.selectoritem = document.getElementById("selectItem");
     
@@ -114,6 +116,7 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.editBuy$.unsubscribe();
     this.editImage$.unsubscribe();
+    this.selectedwireobs$.unsubscribe();
 
   }
 
@@ -126,118 +129,119 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
     );
 
-
     this.selectedwireobs$ = fromEvent(this.selectoritem, 'change').pipe(
 
-      switchMap(() => this.conserv.getConnector(this.selectedwire.firstconn).pipe(
+      map(() => {
 
-        map(value => { return this.selectedfirstcon = value; }),
-        catchError(e => of(e).pipe(
+        this.fullComponentPriceReset();
+        this.tempcountbuy = 0;
+        let sumconnectors: Connector[] = new Array <Connector>();
+        this.sameconnectors = new Array<Connector>();
+        sumconnectors = this.selectedwire.firstconn.concat(this.selectedwire.secondconn);
+        sumconnectors.forEach(con => {
 
-          map(value => { console.log(value); }),
-          map(() => this.resetConnector())
+          if (!this.FindEqual(con, this.sameconnectors)) {
 
-          ))
+            this.sameconnectors.push(con);
 
-      )),
-      exhaustMap((value) => this.findPriceItem(value)),
-      map((value) => {
+          }
+         
+        });
 
-        if (value == undefined) {
+        this.sameconnectors.forEach(c => {
 
-          this.alertAboutPrice(this.selectedfirstcon);
-          this.fullComponentReset();
-          this.fullComponentPriceReset();
-          return value;
+          c.count = this.connectors.find(con => con._id == c._id).count;
 
-        }
+        });
 
-        return this.setPriceItem(value, cableComponent.firstcon);
-
-      }),
-      filter(value=>value!=undefined),
-
-      switchMap(() => this.conserv.getConnector(this.selectedwire.secondconn).pipe(
-
-        map((value) => { return this.selectedsecondcon = value; }),
-        catchError(e => of(e).pipe(
-
-          map(value => { console.log(value); }),
-          map(() => this.resetConnector())
-
-
-          ))
-
-      )),
-      exhaustMap((value) => this.findPriceItem(value)),
-      map((value) => {
-
-        if (value == undefined) {
-
-          this.alertAboutPrice(this.selectedsecondcon);
-          this.fullComponentReset();
-          this.fullComponentPriceReset();
-          return value;
-
-        }
-
-        return this.setPriceItem(value, cableComponent.secondcon);
+        console.log(this.sameconnectors);
 
       }),
-      filter(value => value != undefined),
+      switchMap(() => this.setConnectorPrice(this.selectedwire.firstconn).pipe(
 
-      switchMap(() => this.coilserv.getCoil(this.selectedwire.coil).pipe(
+        map(value => {
 
-        map(value => { return this.selectedcoil = value; }),
-        catchError(e => of(e).pipe(
+          value.forEach(p => {
 
-          map(value => { console.log(value); }),
-          map(() => this.resetConnector())
+            this.setPriceItem(p, cableComponent.firstcon)
 
+          })
+        }),
+        map(() => {
 
-        ))
+          if (this.firstconprice.find(p => p.cost == 0))
+          {
+            this.alertAboutPrice(cableComponent.firstcon);
+            return false;
+          }
+          else {
+            return true;
+          }
+          
+        })
 
       )),
-      exhaustMap((value) => this.findPriceItem(value)),
-      map((value) => {
+      filter(value => value == true),
+      switchMap(() => this.setConnectorPrice(this.selectedwire.secondconn).pipe(
 
-        if (value == undefined) {
+        map(value => {
+          value.forEach(p => {
 
-          this.alertAboutPrice(this.selectedcoil);
-          this.fullComponentReset();
-          this.fullComponentPriceReset();
-          return value;
+            this.setPriceItem(p, cableComponent.secondcon)
 
-        }
+          });
+        }),
+        map(() => {
 
-        return this.setPriceItem(value, cableComponent.coil);
+          if (this.secondconprice.find(p => p.cost == 0)) {
+            this.alertAboutPrice(cableComponent.secondcon);
+            return false;
+          }
+          else {
+            return true;
+          }
 
+        })
+
+      )),
+      filter(value=>value==true),
+      switchMap(() => this.setCoilPrice(this.selectedwire).pipe(
+
+        map(value => this.setPriceItem(value, cableComponent.coil)),
+        map(() => {
+
+          if (this.coilprice.cost == 0) {
+            this.alertAboutPrice(cableComponent.coil);
+            return false;
+          }
+          else {
+            return true;
+          }
+
+        })
+
+      )),
+      filter(value=>value==true),
+     
+      map(() => {
+
+        this.newbuy.cost = this.calculatePrice(this.firstconprice, this.secondconprice, this.coilprice, this.selectedwire);
+        this.changeCount(true);
+        this.newbuy.itemid = this.selectedwire._id;
+        this.newbuy.item = this.makeItemBuy(this.selectedwire, this.selectedcoil);
+         
       }),
-      filter(value => value != undefined),
 
-      exhaustMap(() => this.calculatePrice()),
-      map((value) => this.setCost(value)),
-      map(() => { this.changeCost(true); }),
-      map(() => this.newbuy.item =
-        `${this.selectedfirstcon.name},` +
-        `${this.selectedfirstcon.type};` +
-        `${this.selectedsecondcon.name},` +
-        `${this.selectedsecondcon.type};` +
-        `${this.selectedcoil.name},` +
-        `${this.selectedcoil.type};` +
-        `${this.selectedwire.length}`)
-
-    );
-
-    this.selectedwireobs$.subscribe();
+    ).subscribe(() => { }, (e) => { console.error(e); });
 
     this.editImage$ = this.inputObs(this.editInputButton, this.editImageFile).subscribe();
     
-    this.editBuy$ = this.submitPutObs(this.editBuyButton, this.editbuy, this.image).subscribe(data => {
+    this.editBuy$ = this.submitPutObs(this.editBuyButton, this.image).subscribe(() => {
 
-      this.changeBuyAfterPut(data);
       this.closeEditBut.nativeElement.click();
+
     });
+
   }
 
   getBuys() {
@@ -285,26 +289,18 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-  getBuy(id: string): IBuy | null {
+  getConnectors() {
 
-    let tempbuy: IBuy;
-
-    this.buyserv.getBuy(id).subscribe((data: IBuy) => {
+    this.conserv.getConnectors().subscribe((data: Connector[]) => {
 
       console.log(data);
-      tempbuy = data;
+      this.connectors = data;
 
     }, (e) => {
 
-      console.log(e);
+      console.error(e);
 
     });
-    if (tempbuy != undefined) {
-
-      return tempbuy;
-
-    }
-    return null;
 
   }
 
@@ -333,10 +329,35 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
       map(value => this.addImageToBuy(value, buy)),
       exhaustMap(value => this.postBuyObs(value)),
       filter(value => value != null),
-      map(value => this.getBuys()),
       map(() => {
+
+        this.selectedcoil.length = this.tempcoillength;
+
+      }),
+      exhaustMap(() => this.coilserv.editCoil(this.selectedcoil)),
+      exhaustMap(() => this.conserv.putArrayOfConnectors(this.sameconnectors).pipe(
+
+        map(value => {
+
+          value.forEach(con => {
+
+            let conn: Connector = this.connectors.find(c => c._id == con._id);
+            conn.count = con.count;
+
+          });
+
+        })
+
+      )),
+      map(() => {
+
+        this.getBuys();
         this.fullComponentReset();
         this.fullComponentPriceReset();
+        this.newbuy = this.resetBuy();
+        
+        this.tempcoillength = 0;
+        this.sameconnectors = new Array();
         this.fileInput.value = '';
         this.imgFile.src = "";
       })
@@ -345,17 +366,40 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-  private submitPutObs(submit: HTMLButtonElement, buy: IBuy, img: File): Observable<IBuy> {
+  private submitPutObs(submit: HTMLButtonElement, img: File): Observable<any> {
 
     console.log('submitputobs');
+
     return fromEvent(submit, 'click').pipe(
       map(() => { console.log(this.editbuy); }),
       map(() => this.validateBuy(this.editbuy)),
       filter(value => value == true),
-      exhaustMap(() => this.checkToPutImage(this.image, this.editbuy)),
+      exhaustMap(() => this.checkToPutImage(img, this.editbuy)),
       exhaustMap(() => this.putBuyobs(this.editbuy)),
-      filter(value => value != null)
+      filter(value => value != null),
+      map(() => {
 
+        this.selectedcoil.length = this.tempcoillength;
+
+      }),
+
+      exhaustMap(() => this.conserv.putArrayOfConnectors(this.sameconnectors).pipe(
+
+        map(value => {
+
+          value.forEach(con => {
+
+            let conn: Connector = this.connectors.find(c => c._id == con._id);
+            conn.count = con.count;
+
+          });
+
+        })
+
+      )),
+      exhaustMap(() => this.coilserv.editCoil(this.selectedcoil)),
+
+      map(() => this.changeBuyAfterPut(this.editbuy))
 
     );
 
@@ -460,7 +504,6 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
     return of(console.log('The image stay the same'));
 
-
   }
 
   private get fileInput(): HTMLInputElement {
@@ -478,18 +521,6 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
   private get submitBut(): HTMLButtonElement {
 
     return this.submitbut.nativeElement;
-
-  }
-
-  private get resetBut(): HTMLElement {
-
-    return this.resetbut.nativeElement;
-
-  }
-
-  private get deleteButton(): HTMLButtonElement {
-
-    return this.deleteBut.nativeElement;
 
   }
 
@@ -522,39 +553,37 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
     switch (component) {
       case cableComponent.firstcon: {
 
+        console.log('set price for first connector');
         this.test(value);
-        return this.firstconprice = value;
+        this.firstconprice.push(value);
+        break;
 
       }
       case cableComponent.secondcon: {
 
+        console.log("set price for second connector ");
         this.test(value);
-        return this.secondconprice = value;
+        this.secondconprice.push(value);
+        break;
 
       }
       case cableComponent.coil: {
 
+        console.log("set price for coil connector");
         this.test(value);
-        return this.coilprice = value;
+        this.coilprice = value;
+        break;
 
       }
     }
 
   }
 
-  private alertAboutPrice(component:IItem) {
+  private alertAboutPrice(component: cableComponent) {
 
-    alert(`This component: ${component.name}-${component.type} doesn't has a price. Use price manager`);
+    alert(`This component: ${cableComponent[component]} doesn't has a price. Use price manager`);
 
   }
-
-  private setCost(value:number) {
-
-    this.tempcost = value;
-    this.test(this.tempcost);
-    return value;
-  }
-
 
   deleteBuy(buy: IBuy, e: Event) {
 
@@ -562,22 +591,16 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.cancelButton.click();
 
-    this.buyserv.deleteBuy(buy._id, buy.image._id).pipe(
+    this.buyserv.deleteBuy(buy._id, buy.image._id).subscribe((data: IBuy) => {
 
-      catchError(e => of(e).pipe(
+      let index: number = this.buys.findIndex(b => b._id == data._id || b.item == data.item);
+      this.buys.splice(index, 1);
 
-        map(value => {
-          console.log(value);
-          return null;
-        })
+    }, (e) => {
 
-      )),
-      filter(value=>value!=null),
-      map(value => { console.log(value); }),
+      console.log(e);
 
-      exhaustMap(() => of(this.getBuys()))
-
-    ).subscribe();
+    });
 
 
   }
@@ -585,7 +608,7 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
   editBuy(buy: IBuy) {
 
     this.editImageFile.src = "";
-    this.buyserv.getImage(buy.image._id, buy.image.type).subscribe((data => {
+    this.buyserv.getImage(buy.image._id, buy.image.type).subscribe(((data:Blob) => {
 
       
       let reader = new FileReader();
@@ -608,12 +631,44 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
     });
 
+    this.wireserv.getWire(buy.itemid).pipe(
+
+      map(value => this.selectedwire = value),
+      switchMap(value => this.coilserv.getCoil(value.coil).pipe(
+
+        map(value => this.selectedcoil = value)
+
+      )),
+      map(() => this.getConnectors())
+      
+
+    ).subscribe(() => {
+
+      this.tempcoillength = this.selectedcoil.length;
+      this.tempbuy = Object.assign({}, buy);
+
+      console.log(this.tempbuy.name);
+
+      this.editbuy = buy;
+      this.tempcountbuy = this.editbuy.count;
+      let sumconnectors: Connector[] = new Array<Connector>();
+      this.sameconnectors = new Array<Connector>();
+      sumconnectors = this.selectedwire.firstconn.concat(this.selectedwire.secondconn);
+      sumconnectors.forEach(con => {
+
+        if (!this.FindEqual(con, this.sameconnectors)) {
+
+          con = Object.assign({}, this.connectors.find(c => c._id == con._id));
+          this.sameconnectors.push(con);
+
+        }
+
+      });
+
+    }, (e) => { console.log(e); });
+
+
     this.image = null;
-    this.tempbuy = Object.assign({},buy);
-    console.log(this.tempbuy.name);
-    this.editbuy = buy;
-    this.tempcost = this.editbuy.cost / this.editbuy.count;
-    this.changeCost(false);
 
   }
 
@@ -624,8 +679,9 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
       name: "",
       description: "",
       item: "",
+      itemid:"",
       cost: 0,
-      count: 1,
+      count: 0,
       image:null
     }
     
@@ -634,7 +690,8 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private resetWire() {
 
-    this.selectedwire = new Wire("", "", "", "", "", 0);
+    let array: Connector[] = new Array<Connector>();
+    this.selectedwire = new Wire("", "", array, array, "", 0, 0);
 
   }
 
@@ -646,35 +703,28 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private resetCoil(): Coil {
 
-    return new Coil("", "", "", "", 0);
-
-  }
-
-  private resetConnector(): Connector {
-
-    return new Connector("", "", "", 0);
+    return new Coil("", "", "","", 0);
 
   }
 
   private fullComponentReset() {
 
-    this.selectedfirstcon = this.resetConnector();
-    this.selectedsecondcon = this.resetConnector();
     this.selectedcoil = this.resetCoil();
     this.resetWire();
   }
 
   private fullComponentPriceReset() {
 
-    this.firstconprice = this.resetPrice();
-    this.secondconprice = this.resetPrice();
+    this.firstconprice = new Array<Price>();
+    this.secondconprice = new Array<Price>();
     this.coilprice = this.resetPrice();
-    this.newbuy = this.resetBuy();
-    this.editbuy = this.resetBuy();
+    this.newbuy.cost = 0;
+    this.editbuy.cost = 0;
 
   }
 
-  changeCost(isNew: boolean) {
+  changeCount(isNew: boolean) {
+
     let buy: IBuy;
     if (isNew) {
 
@@ -687,24 +737,27 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
     }
 
-    buy.cost = buy.count * this.tempcost;
-    console.log(`cost ${this.newbuy.cost}\n count ${this.newbuy.count}`);
-    console.log(`editcost ${this.editbuy.cost}\n editcount ${this.editbuy.count}`);
+    this.sameconnectors = this.changeConnectorCount(this.selectedwire.firstconn, this.sameconnectors, buy.count, this.tempcountbuy);
+    this.sameconnectors = this.changeConnectorCount(this.selectedwire.secondconn, this.sameconnectors, buy.count, this.tempcountbuy);
+    this.tempcoillength = this.changeCoilLength(this.tempcoillength, this.selectedwire, buy.count, this.tempcountbuy);
 
+    this.tempcountbuy = buy.count;
   }
 
   cancelEdit() {
 
     if (this.tempbuy != undefined) {
 
-      this.editbuy.name = this.tempbuy.name;
-      this.editbuy.description = this.tempbuy.description;
-      this.editbuy.cost = this.tempbuy.cost;
-      this.editbuy.count = this.tempbuy.count;
-
-      console.log(this.tempbuy.name);
-      console.log(this.editbuy.name);
+      this.editbuy = Object.assign({}, this.tempbuy);
+      this.tempcoillength = 0;
       this.image = null;
+      this.tempbuy = this.resetBuy();
+      this.newbuy = this.resetBuy();
+      this.resetWire();
+      this.sameconnectors = new Array();
+      this.fullComponentReset();
+      this.fullComponentPriceReset();
+
     }
 
   }
@@ -727,15 +780,27 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-  private findPriceItem(item: any): Observable<Price|undefined> {
+  private calculatePrice(firstconnectorprice: Price[], secondconnectorprice: Price[], coilprice: Price, wire: Wire): number {
 
-    return of(this.prices.find(p => p.itemofprice._id == item._id));
+    let firstconncost: number = 0;
+    let secondconncost: number = 0;
+    let sum: number = 0;
 
-  }
+    for (let price of firstconnectorprice) {
 
-  private calculatePrice(): Observable<number> {
+      firstconncost += price.cost;
 
-    return of(this.firstconprice.cost + this.secondconprice.cost + this.coilprice.cost);
+    }
+    
+    for (let price of secondconnectorprice) {
+
+      secondconncost += price.cost;
+
+    }
+
+    sum = firstconncost + secondconncost + (coilprice.cost * wire.length);
+
+    return sum;
 
   }
 
@@ -743,27 +808,218 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
     console.log('validate buy');
     this.test(buy);
-    if (buy.item!='') {
+    if (buy.item=='') {
 
-      return true;
+      alert("Задайте все параметры для покупки")
+      return false;
+
+
+    }
+    if (this.tempcoillength<0) {
+      alert("Не хватает длины выбранного кабеля");
+      return false;
+    }
+
+    let badcount: boolean = true;
+
+    for (let con of this.sameconnectors) {
+
+      if (con.count < 0) {
+        badcount = false;
+        break;
+      }
 
     }
 
-    alert("Задайте все параметры для покупки")
-    return false;
+    if (!badcount) {
+
+      alert("Не хватает коннекторов для выбранного кабеля");
+      return false;
+
+    }
+
+    console.log("Validation successful");
+    return true;
 
   }
 
-  private changeBuyAfterPut(buy: IBuy) {
+  private setConnectorPrice(connectors: Connector[]): Observable<Price[]> {
 
-    let delindex = this.buys.findIndex(b => b._id == buy._id);
+    console.log("setconnector");
+
+    let arrayofids: string[] = new Array<string>();
+
+    for (let con of connectors) {
+
+      arrayofids.push(con._id);
+
+    }
+
+    return this.priceserv.getArrayOfPrices(arrayofids);
+
+  }
+
+  private setCoilPrice(wire: Wire): Observable<Price> {
+
+    return this.coilserv.getCoil(wire.coil).pipe(
+
+      map(value => {
+
+        this.tempcoillength = value.length;
+        return this.selectedcoil = value;
+
+      }),
+      switchMap(value => this.priceserv.getPrice(value._id).pipe(
+
+        catchError(e => of(e).pipe(
+
+          map(value => {
+
+            console.log(value);
+            this.fullComponentPriceReset();
+            this.fullComponentReset();
+            return value = new Price("", "", 0, { _id: "", name: "", type: "" });
+
+          })
+
+        )),
+
+      ))
+
+    );
+
+  }
+
+  private changeBuyAfterPut(buy: IBuy){
+
+    this.tempbuy = buy;
+    let delindex = this.buys.findIndex(b => b._id == buy._id || b.item == buy.item);
     this.buys.splice(delindex, 1, buy);
 
+  }
+
+  private changeCoilLength(coillength:number, wire: Wire, curcount: number, previoscount: number): number {
+
+    let count: number = previoscount;
+
+    if (curcount > previoscount) {
+
+      while (curcount > count) {
+
+        coillength -= wire.length;
+        count++;
+
+      }
+
+    }
+    else if (curcount < previoscount) {
+
+      coillength += wire.length;
+      count--;
+    }
+
+    console.log(`Change coil length: ${coillength}`)
+    return coillength;
+
+  }
+
+  private changeConnectorCount(connectors: Connector[], sameconnectors: Connector[], curcount: number, prevcount: number): Connector[] {
+
+    let count: number = curcount;
+    let tempcon: Connector;
+    if (count > prevcount) {
+
+      while (count > prevcount) {
+
+        for (let con of connectors) {
+
+          tempcon = sameconnectors.find(c => c._id == con._id);
+          tempcon.count--;
+          console.log(`${sameconnectors.find(c => c._id == con._id).count}`);
+        }
+        count--;
+      }
+     
+    }
+    else if (count < prevcount) {
+
+      while (count < prevcount) {
+
+        for (let con of connectors) {
+
+          tempcon = sameconnectors.find(c => c._id == con._id);
+          tempcon.count++;
+          console.log(`${sameconnectors.find(c => c._id == con._id).count}`);
+        }
+
+        count++;
+      }
+
+      
+    }
+    console.log('avalilable connectors');
+    console.log(sameconnectors);
+    return sameconnectors;
+    
   }
 
   test(test:any) {
 
     console.log(test);
+
+  }
+
+  private FindEqual(value: Connector, array: Connector[]): boolean {
+
+    if (array.length == 0) {
+      return false;
+
+    }
+
+    if (array.find(c => c._id == value._id) != undefined || array.find(c => c._id == value._id)!=null) {
+
+      return true;
+
+    }
+
+    return false;
+
+  }
+
+  resetClick() {
+
+    this.fullComponentPriceReset();
+    this.fullComponentReset();
+    this.newbuy = this.resetBuy();
+    this.editbuy = this.resetBuy();
+    this.tempbuy = this.resetBuy();
+    this.sameconnectors = new Array();
+    this.tempcoillength = 0;
+  }
+
+  private makeItemBuy(wire: Wire, coil: Coil): string {
+
+    let item: string;
+
+    let array1: string[] = new Array<string>();
+    let array2: string[] = new Array<string>();
+    wire.firstconn.forEach(con => {
+
+      array1.push(`${con.name}-${con.type}`);
+
+    });
+    wire.secondconn.forEach(con => {
+
+      array2.push(`${con.name}-${con.type}`);
+
+    });
+
+    item = array1.toString() + ";" + array2.toString() + ";" + `${coil.name}-${coil.type};` + `${wire.length}`;
+
+    console.log(item);
+
+
+    return item;
 
   }
 

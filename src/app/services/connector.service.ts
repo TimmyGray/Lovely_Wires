@@ -25,6 +25,7 @@ export class ConnectorService {
 
   }
 
+
   getConnectorByNameAndType(name: string, type: string): Observable<Connector> {
 
     const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
@@ -46,6 +47,13 @@ export class ConnectorService {
     const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
 
     return this.client.put<any>(this.url + '/putconn', JSON.stringify(connector), { headers: httpheaders });
+
+  }
+
+  putArrayOfConnectors(connectors: Connector[]): Observable<Connector[]> {
+
+    const httpheaders: HttpHeaders = new HttpHeaders({ "Content-Type": "application/json" });
+    return this.client.put<Connector[]>(this.url + "/putarrayofconn", JSON.stringify(connectors), { headers: httpheaders });
 
   }
 
