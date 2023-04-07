@@ -43,6 +43,15 @@
 
         </div>
 
+        <div class="col-6">
+
+          <div class="form-check">
+            <input type="checkbox" id="newbuycustom" name="custombuy" class="form-check-input" [(ngModel)]="newbuy.custom" />
+            <label class="text-primary form-check-label" for="newbuycustom">isCustom</label>
+          </div>
+
+        </div>
+
       </div>
 
       <div class="row mt-2">
@@ -134,6 +143,7 @@
           <th>Item</th>
           <th>Cost</th>
           <th>Count</th>
+          <th>Is custom?</th>
           <th></th>
         </tr>
       </thead>
@@ -149,6 +159,7 @@
           <td>{{buy.item}}</td>
           <td>{{buy.cost}}</td>
           <td>{{buy.count}}</td>
+          <td><div [style]="checkCustom(buy.custom)"></div></td>
           <td><button class="btn btn-danger" (click)="deleteBuy(buy,$event)" #deleteBut>Delete</button></td>
 
         </tr>
@@ -210,6 +221,10 @@
                     <p>Buy's price:{{editbuy.cost}}$</p>
                   </div>
 
+                  <div class="form-check">
+                    <input type="checkbox" id="editbuycustom" name="customeditbuy" class="form-check-input" [(ngModel)]="editbuy.custom" />
+                    <label class="text-primary form-check-label">isCustom</label>
+                  </div>
 
                 </div>
 

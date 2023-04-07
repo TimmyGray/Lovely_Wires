@@ -11,7 +11,7 @@ import { Price } from './models/price';
 import { Connector } from './models/connector';
 import { Coil } from './models/coil';
 import { Observable, fromEvent, Subscription, Subject, of, from } from 'rxjs';
-import { debounceTime, distinctUntilChanged, exhaustMap, filter, map, switchMap, takeUntil, mapTo, catchError, concatMap, exhaust } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, exhaustMap, filter, map, switchMap, takeUntil, mapTo, catchError, concatMap } from 'rxjs/operators';
 import { IImage } from './models/IImage.interface';
 import { cableComponent } from './models/enums';
 import { IItem } from './models/IItem.interface';
@@ -682,7 +682,8 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
       itemid:"",
       cost: 0,
       count: 0,
-      image:null
+      image: null,
+      custom: false
     }
     
 
@@ -1020,6 +1021,22 @@ export class MakeBuyComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
     return item;
+
+  }
+
+  checkCustom(isCustom: boolean): string {
+
+    if (isCustom) {
+
+      return 'width:35px;height:20px;border-radius:10px;background:green';
+
+    }
+
+    else {
+
+      return 'width:35px;height:20px;border-radius:10px;background:red';
+
+    }
 
   }
 

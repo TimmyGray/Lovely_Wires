@@ -9,4 +9,5 @@ export interface IBuy {
   itemid: string;
   count: number;
   image: IImage;
+  custom: boolean;
 }

@@ -3,3 +3,21 @@
     cursor:pointer;
     
 }
+
+.custom-item{
+
+    width:50px!important;
+    height:50px!important;
+    border-radius:35px;
+    background:red!important;
+
+}
+
+.simple-item {
+
+  width: 50px!important;
+  height: 50px;
+  border-radius: 35px;
+  background: green !important;
+
+}
