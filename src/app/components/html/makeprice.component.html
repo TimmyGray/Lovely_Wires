@@ -1,21 +1,21 @@
 <div class="container">
   <h1>Make Prices</h1>
   <form>
-    <div class="row">
+    <div class="row mb-2">
 
       <div class="col-5">
-        <label for="PriceName">name</label>
+        <label for="PriceName" class="text-primary">Name</label>
         <input id="PriceName" type="text" class="form-control" [(ngModel)]="newPrice.name" name="priceName" />
       </div>
 
       <div class="col-5">
-        <label for="PriceCost">cost</label>
+        <label for="PriceCost" class="text-primary">Cost</label>
         <input id="PriceCost" type="number" class="form-control" [(ngModel)]="newPrice.cost" name="priceCost" />
       </div>
     </div>
 
-    <div class="col-10">
-      <label for="ItemOfPrice">Item</label>
+    <div class="col-10 mb-3">
+      <label class="text-primary" for="ItemOfPrice">Item</label>
       <select id="ItemOfPrice" class="form-select" [(ngModel)]="selectitem" (ngModelChange)="setItem()"  name="priceItem">
         <option value=""></option>
         <option *ngFor="let item of listOfItems">{{item.name}}-{{item.type}}</option>
@@ -40,7 +40,7 @@
     <thead>
       <tr>
         <th>Name</th>
-        <th>Cost</th>
+        <th>Cost,$</th>
         <th>Item</th>
         <th></th>
       </tr>
@@ -48,7 +48,7 @@
     <tbody>
       <tr *ngFor="let price of prices;let i=index">
         <td>{{price.name}}</td>
-        <td>{{price.cost}}</td>
+        <td>{{price.cost|currency}}</td>
         <td>{{price.itemofprice.name}}-{{price.itemofprice.type}}</td>
         <td><button class="btn btn-danger" (click)="deletePrice(price._id)">Delete</button></td>
       </tr>

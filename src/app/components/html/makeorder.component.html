@@ -63,7 +63,7 @@
                 <tr>
                   <th>Buy's name</th>
                   <th>Item</th>
-                  <th>Cost</th>
+                  <th>Cost,$</th>
                   <th>Count</th>
                   <th>Available count</th>
                   <th>Accept buy</th>
@@ -73,7 +73,7 @@
                 <tr *ngFor="let item of listofbuys; let i=index">
                   <td>{{item.name}}</td>
                   <td>{{item.item}}</td>
-                  <td>{{item.cost}}</td>
+                  <td>{{item.cost|currency}}</td>
                   <td>{{item.count}}</td>
                   <td>{{templistofcounts[i]}}</td>
                   <td><input type="checkbox" (click)="checkUncheck($event,i)" [disabled]="(templistofcounts[i]-item.count)<0"/></td>
