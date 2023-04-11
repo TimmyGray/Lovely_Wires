@@ -1,13 +1,96 @@
 <div class="container">
-  <h1 class="text-center">Main Page</h1>
-  <h3 class="mb-5">
-    Это приложение позволяет вести учет созданным кабелям. Оно будет полезно тем, кто на своей работе часто паяет кабели.
-    Или музыкантам с собственным техническим стаффом.
+  <h1 class="text-center">About this application:</h1>
 
+  <h3 class="mb-5">
+    Welcome!
+    This apllication allows you to keep records about cable components(wire coil, connector), created cables, prices, buys and orders.
+    This section contains information on how to use the application, its possibilities and some others useful things. This application - seller side for 'Staff Buying Client' application.
   </h3>
-  <h4 class="text-center mb-5 text-info">Чтобы перейти к созданию кабеля -  нажмите Wires Manager</h4>
-  <h4 class="text-center mb-5 text-info">Чтобы перейти к созданию катушки -  нажмите Coils Manager</h4>
-  <div class="row mb-5 ">
+
+  <div class="row light-back">
+
+    <div class="col-6">
+      <h4 class="mb-1 text-info">1. Click on <span class="text-warning">Wires Manager</span> to create cable with an existing coil and connectors</h4>
+      <ul>
+        <li><p>For now,'type of signal' validation and 'number of wire cores equal number of connectors' validation are not implemented, so, please, be careful when choose components</p></li>
+        <li><p>The wire manager section contain two parts: cable production and cable storage(with possibility to edit/delete an existing cable)</p></li>
+        <li><p>You must understand, that the created cable is just potential cable(not physically existing), so you couldn't set wire count</p></li>
+        <li><p>You can doing primitive sorting by clicking on the table headers (name,first connector, length, second connector)</p></li>
+      </ul>
+
+    </div>
+    <div class="col-6">
+      <h4 class="mb-1 text-info">2. Click on <span class="text-warning">Coils Manager</span> to create coil that you could use in creating a cable</h4>
+      <ul>
+        <li><p>This section alomst like others sections. First part for creating coils, second part for inspect them, edit and delete</p></li>
+        <li><p>In this context, coils doesn't mean a big big real coils. It can be simple piece of wire</p></li>
+        <li><p>The coils as opossed to wires(in Wires manager) its a real coils</p></li>
+      </ul>
+
+    </div>
+  </div>
+
+  <div class="row light-back">
+
+    <div class="col-6">
+      <h4 class="mb-1 text-info">3. Click on <span class="text-warning">Connectors Manager</span> to create connector that you could use in creating cable</h4>
+      <ul>
+        <li><p>This section almost like others sections. First part for creating connectors, second part for inspect them, edit and delete</p></li>
+        <li><p>In this context, connectors are real connectors, so you could set the their count.</p></li>
+      </ul>
+
+    </div>
+    <div class="col-6">
+      <h4 class="mb-1 text-info">4. Click on <span class="text-warning">Prices Manager</span> to create prices for various cable components</h4>
+      <ul>
+        <li><p>This section alomst like others sections. First part for creating prices, second part for inspect them, edit and delete</p></li>
+        <li><p>Each new price associated with its own cable component and may have the same value with other prices</p></li>
+        <li><p>The price value must be set for one piece</p></li>
+      </ul>
+
+    </div>
+
+  </div>
+
+  <div class="row light-back">
+
+    <div class="col-6">
+      <h4 class="mb-1 text-info">5. Click on <span class="text-warning">Buys Manager</span> to create a buy</h4>
+      <ul>
+        <li><p>This is the most important section. The buy is a physically existing cables, so you won't be able create a buy if some of the components don't exist in the storage</p></li>
+        <li><p>The Buys are created, based on created wires. The prices for cable components are prices you set in Prices Manager</p></li>
+        <li><p>When the buy created, counts of all components that the wire contains is changing</p></li>
+        <li><p>You can view available components for the current cable, and the full price</p></li>
+        <li><p>You can add an image of the created wire which will be visible to the customer in the application for purchase cables(Staff Buying Client)</p></li>
+        <li><p>If you want to create custom buy(custom wire from the app - Staff Buying Client), you must click on 'isCustom' checkbox. Otherwise,the created buy will be displayed in the app for the customer</p></li>
+        <li><p>The description field is the information about the wire, that could be seen by customer in "Staff Buying Client" app. It may be how to use, where to use, inforamtion about manufacturer</p></li>
+        <li><p>By clicking on the table rows you can edit the current buy. So use it, when you have phiysically created an wire(change quantity), or you want to change an image, or description</p></li>
+      </ul>
+
+    </div>
+    <div class="col-6">
+
+      <h4 class="mb-1 text-info">6. Click on <span class="text-warning">Orders Manager</span> to edit existing orders</h4>
+      <ul class="mb-2">
+        <li><p>In the table of this section you will see any order created by customer in "Staff Buying Client" app.</p></li>
+        <li><p>Click on order you want in the table rows and you will see its details: Client's name and email, list of buys with needed and available count, order status selector and comment area</p></li>
+        <li><p>You can't create an order, change the list of buys, buys count or anything like that. You can only change the order status or delete an order</p></li>
+        <li><p>You can't select 'agree' status until the all 'available count' checkboxes is in 'check' value</p></li>
+        <li><p>You can't select the 'done' status if the current status is not 'agree'</p></li>
+        <li><p>You can't select the 'under consideration' status if the current status is not 'agree'</p></li>
+        <li><p>You can't select the 'canceled' status if the current status is 'done'</p></li>
+        <li><p>You can select the 'canceled' status only if you wrote the reason of cancel in the comment area</p></li>
+        <li><p>If the current status is 'under consideration/agree' and you changed it on 'agree/under consideration' - count of all buys contained in the order will change</p></li>
+        <li><p>If you see -999 in 'available count' column, it means, it is a custom buy, so, you must create that wire(and a buy with 'isCustom' check active) before you can click on checkbox</p></li>
+        <li><p>If the mail sending opportunity is setup, every time, when the order status changhed,the client receives a letter with the status and comments</p></li>
+      </ul>
+
+    </div>
+
+  </div>
+
+
+  <!--<div class="row mb-5 ">
     <div class="col-6">
       <h4>Что реализовано</h4>
       <ul class="list-group">
@@ -63,13 +146,14 @@
         </li>
       </ul>
     </div>
-  </div>
+  </div>-->
 
+  <h4 class="text-danger text-center">For now, this application in developing stage. So, many features not implemented yet=((</h4>
 
   <div class="card bg-info mb-3 col-md-8 col-12 offset-md-2 col-lg-6 offset-lg-3 text-center">
     <div class="card-header">Feedback</div>
     <div class="card-body">
-      <h5 class="card-title">Для вопросов и предложений</h5>
+      <h5 class="card-title">For the questions and the offers:</h5>
       <p class="card-text fs-1">zuuubada@inbox.ru</p>
     </div>
   </div>
