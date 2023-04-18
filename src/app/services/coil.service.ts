@@ -2,12 +2,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Coil } from '../components/models/coil';
-
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class CoilService{
 
-  private url: string = "http://localhost:3200/api/coils";
+  private url: string = environment.apiUrl+"/coils";
 
   constructor(private client: HttpClient) { }
 

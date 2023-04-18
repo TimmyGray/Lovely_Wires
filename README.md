@@ -13,4 +13,7 @@ How to run:
 2) Install node.js from official site  
 3) Run "npm i" in the root dir to install all req components  
 4) If you want to use both front and back - clone Lovely_wires_server repo in the other directory, run server by info from readme  
-5) Run 'npm start' if you want to run app using test angular server or run 'ng build' if you want use your own server. (You can use server from simple server dir and run 'node server.js porttolisten')  
+5) Run 'npm start' or 'ng serve' if you want to run app using test angular server or run 'ng build' if you want use your own server. (You can use server from simple server dir and run 'node server.js porttolisten(optional)')  
+
+There are dev and prod environments in environments dir. For set backend server port, you should change "apiUrl" to needed value. For using production environment, run 'ng serve --configuration=production' 
+or 'ng build --configuration=production'

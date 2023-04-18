@@ -2,11 +2,12 @@ import { Connector } from '../components/models/connector';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class ConnectorService {
 
-  private url: string = "http://localhost:3200/api/connectors";
+  private url: string = environment.apiUrl+"/connectors";
 
   constructor(private client: HttpClient) { }
 

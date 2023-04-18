@@ -3,11 +3,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { JsonPipe } from '@angular/common';
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class PriceService {
 
-  private url: string = "http://localhost:3200/api/prices";
+  private url: string = environment.apiUrl+"/prices";
 
   constructor(private client: HttpClient) { }
 

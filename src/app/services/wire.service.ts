@@ -2,15 +2,18 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpContextToken, HttpHeaders } from '@angular/common/http';
 import { Wire } from '../components/models/wire';
 import { Observable } from 'rxjs';
-
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class WireService {
 
-  private url = "http://localhost:3200/api/wires";
+  private url;
 
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+
+    this.url = environment.apiUrl + "/wires";
+  }
 
   getWires(): Observable<Wire[]> {
 

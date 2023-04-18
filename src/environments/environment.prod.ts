@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  apiUrl: "https://wiresserver-timmygray.vercel.app/api"
 };

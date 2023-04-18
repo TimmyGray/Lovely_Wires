@@ -3,13 +3,15 @@ import { Observable } from 'rxjs';
 import { IBuy } from '../components/models/IBuy.interface';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { IImage } from '../components/models/IImage.interface';
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class BuyService {
 
-  private url: string = "http://localhost:3200/api/buys";
+  private url: string = environment.apiUrl+"/buys";
 
-  constructor(private httpclient: HttpClient) { }
+  constructor(private httpclient: HttpClient) {
+  }
 
   getBuys(): Observable<IBuy[]> {
 

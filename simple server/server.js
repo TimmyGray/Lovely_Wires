@@ -10,7 +10,7 @@ const server = Express();
 const apppath = __dirname;
 console.log(apppath);
 
-const port = procces.env.port || procces.argv[2];
+const port = procces.env.PORT || procces.argv[2]||3300;
 server.use(Express.static(apppath));
 
 server.get('/', (req, res) => {
@@ -21,6 +21,6 @@ server.get('/', (req, res) => {
 
 server.listen(port, () => {
 
-  console.log('Server listen...');
+  console.log(`Server listen on port ${port}`);
 
 })
