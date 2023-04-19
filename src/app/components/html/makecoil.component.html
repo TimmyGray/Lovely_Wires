@@ -51,29 +51,32 @@
 
   <div class="container">
 
-    <table class="table table-striped table-warning table-hover text-center">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type of signal</th>
-          <th>Number of wire's core</th>
-          <th>Wire's length</th>
-          <th>Edit</th>
-          <th>Delete</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let coil of coils">
+    <div class="table-responsive">
+      <table class="table table-striped table-warning table-hover text-center">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type of signal</th>
+            <th>Number of wire's core</th>
+            <th>Wire's length</th>
+            <th>Edit</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let coil of coils">
 
-          <ng-template  [ngTemplateOutlet]="LoadTemplate(coil)"
-                        [ngTemplateOutletContext]="{$implicit:coil}">
+            <ng-template [ngTemplateOutlet]="LoadTemplate(coil)"
+                         [ngTemplateOutletContext]="{$implicit:coil}">
 
 
-          </ng-template>
+            </ng-template>
 
-        </tr>
-      </tbody>
-    </table>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
 
   </div>
 

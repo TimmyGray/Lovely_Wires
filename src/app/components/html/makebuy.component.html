@@ -5,7 +5,7 @@
 
       <div class="row">
 
-        <div class="col-6">
+        <div class="col-12 col-md-6">
           <label for="buyname" class="text-primary">Name of buy</label>
           <input id="buyname"
                  type="text"
@@ -15,7 +15,7 @@
                  name="ngNewBuyName" />
         </div>
 
-        <div class="col-6">
+        <div class="col-12 col-md-6">
           <label for="selectItem" class="text-primary">Select wire</label>
           <select class="form-select"
                   [(ngModel)]="selectedwire"
@@ -54,19 +54,19 @@
 
       </div>
 
-      <div class="row mt-2">
+      <div class="row mt-2 mb-2">
 
-        <div class="col-6">
+        <div class="col-12 col-md-6">
 
           <h4>First connector:</h4>
-          <div *ngFor="let firstconnector of selectedwire.firstconn; let i=index">{{i+1}}.{{firstconnector.name}},{{firstconnector.type}}:{{firstconprice[i]?.cost}}$</div>
+          <div *ngFor="let firstconnector of selectedwire.firstconn; let i=index">{{i+1}}.{{firstconnector.name}},{{firstconnector.type}}:{{firstconprice[i]?.cost|currency}}$</div>
 
           <h4 class="mt-3">Second connector:</h4>
-          <div *ngFor="let secondconnector of selectedwire.secondconn; let i = index">{{i+1}}.{{secondconnector.name}},{{secondconnector.type}}:{{secondconprice[i]?.cost}}$</div>
+          <div *ngFor="let secondconnector of selectedwire.secondconn; let i = index">{{i+1}}.{{secondconnector.name}},{{secondconnector.type}}:{{secondconprice[i]?.cost|currency}}$</div>
 
         </div>
 
-        <div class="col-6">
+        <div class="col-12 col-md-6">
 
           <h4>Available  connectors:</h4>
           <div *ngFor="let con of sameconnectors; let i = index">{{con.name}}-{{con.type}}:{{con.count}}</div>
@@ -76,12 +76,13 @@
 
       <div class="row">
 
-        <h4>Coil:{{selectedcoil.name}},{{selectedcoil.type}}:{{coilprice?.cost}}$</h4>
-        <h4>Wire's length:{{selectedwire.length}}m</h4>
-        <h4 class="mb-3">Cost:{{newbuy.cost}}$</h4>
+        <h5>Coil:</h5>
+        <div class="mb-2">{{selectedcoil.name}},{{selectedcoil.type}}:{{coilprice?.cost|currency}}$</div>
+        <h5>Wire's length:{{selectedwire.length}}m</h5>
+        <h5 class="mb-2">Cost:{{newbuy.cost|currency}}</h5>
 
-        <h4>Available length:</h4>
-        <div class="mb-2">{{tempcoillength}}</div>
+        <h5>Available length:</h5>
+        <div class="mb-2">{{tempcoillength}}m</div>
 
       </div>
 
@@ -134,37 +135,40 @@
 
   <div class="container">
 
-    <table class="table table-hover table-striped table-dark">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Name</th>
-         <!-- <th>Decription</th>-->
-          <th>Item</th>
-          <th>Cost,$</th>
-          <th>Count</th>
-          <th>Is custom?</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-            (click)="editBuy(buy)"
-            *ngFor="let buy of buys; let i = index"
-            data-bs-toggle="modal"
-            data-bs-target="#buysModal">
-          <td>{{i+1}}</td>
-          <td>{{buy.name}}</td>
-          <!--<td>{{buy.description}}</td>-->
-          <td>{{buy.item}}</td>
-          <td>{{buy.cost|currency}}</td>
-          <td>{{buy.count}}</td>
-          <td><div [style]="checkCustom(buy.custom)"></div></td>
-          <td><button class="btn btn-danger" (click)="deleteBuy(buy,$event)" #deleteBut>Delete</button></td>
+    <div class="table-responsive">
 
-        </tr>
-      </tbody>
-    </table>
+      <table class="table table-hover table-striped table-dark">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Name</th>
+            <!-- <th>Decription</th>-->
+            <th>Item</th>
+            <th>Cost,$</th>
+            <th>Count</th>
+            <th>Is custom?</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr (click)="editBuy(buy)"
+              *ngFor="let buy of buys; let i = index"
+              data-bs-toggle="modal"
+              data-bs-target="#buysModal">
+            <td>{{i+1}}</td>
+            <td>{{buy.name}}</td>
+            <!--<td>{{buy.description}}</td>-->
+            <td>{{buy.item}}</td>
+            <td>{{buy.cost|currency}}</td>
+            <td>{{buy.count}}</td>
+            <td><div [style]="checkCustom(buy.custom)"></div></td>
+            <td><button class="btn btn-danger" (click)="deleteBuy(buy,$event)" #deleteBut>Delete</button></td>
+
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
 
     <div
          class="modal fade"
@@ -195,6 +199,13 @@
                 <div class="col-6">
                   <img class="img-thumbnail" name="editImage" #editImage />
                   <input type="file" class="form-control rouded" #editImageInput name="editImage" />
+                  <div class="row">
+
+                    <div>Available connectors</div>
+                    <div *ngFor="let con of sameconnectors;let i = index">{{con.name}}-{{con.type}}:{{con.count}}</div>
+
+                  </div>
+
                 </div>
                 <div class="col-6">
 
@@ -233,23 +244,17 @@
 
                 <div class="row">
 
-                  <div class="col-6">
+                  <div class="col-12 col-md-6">
                     <div>First connectors:</div>
                     <div *ngFor="let con of selectedwire.firstconn; let i = index">{{i+1}}.{{con.name}}-{{con.type}}</div>
                   </div>
-                  <div class="col-6">
+                  <div class="col-12 col-md-6">
                     <div>Second connectors:</div>
                     <div *ngFor="let con of selectedwire.secondconn; let i = index">{{i+1}}.{{con.name}}-{{con.type}}</div>
                   </div>
 
                 </div>
 
-                <div class="row">
-
-                  <div>Available count of connectors</div>
-                  <div *ngFor="let con of sameconnectors;let i = index">{{con.name}}-{{con.type}}:{{con.count}}</div>
-
-                </div>
 
                 <div class="row">
 

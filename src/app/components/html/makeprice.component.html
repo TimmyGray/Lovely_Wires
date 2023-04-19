@@ -36,24 +36,28 @@
     </div>
   </form>
 
-  <table class="mt-3 table table-striped table-danger table-hover text-center">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Cost,$</th>
-        <th>Item</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let price of prices;let i=index">
-        <td>{{price.name}}</td>
-        <td>{{price.cost|currency}}</td>
-        <td>{{price.itemofprice.name}}-{{price.itemofprice.type}}</td>
-        <td><button class="btn btn-danger" (click)="deletePrice(price._id)">Delete</button></td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="table-responsive">
+
+    <table class="mt-3 table table-striped table-danger table-hover text-center">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Cost,$</th>
+          <th>Item</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let price of prices;let i=index">
+          <td>{{price.name}}</td>
+          <td>{{price.cost|currency}}</td>
+          <td>{{price.itemofprice.name}}-{{price.itemofprice.type}}</td>
+          <td><button class="btn btn-danger" (click)="deletePrice(price._id)">Delete</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
 
 </div>
 
